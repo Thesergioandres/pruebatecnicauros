@@ -50,7 +50,7 @@ export default function RootLayout({
       lang="es"
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="bg-[--color-canvas] text-[--color-on-surface] font-sans antialiased">
+      <body className="bg-[var(--color-canvas)] text-[var(--color-on-surface)] font-sans antialiased">
         <SessionProvider>
           <SkipLink />
           {children}

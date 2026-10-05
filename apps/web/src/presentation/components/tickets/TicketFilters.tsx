@@ -70,7 +70,7 @@ export function TicketFilters({ value, onChange, onReset, onApply, isLoading }: 
         event.preventDefault();
         onApply();
       }}
-      className="grid grid-cols-1 gap-3 rounded-lg border border-[--color-border] bg-[--color-surface] p-4 sm:grid-cols-2 lg:grid-cols-3"
+      className="grid grid-cols-1 gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4 sm:grid-cols-2 lg:grid-cols-3"
     >
       <TextField
         label="Buscar"

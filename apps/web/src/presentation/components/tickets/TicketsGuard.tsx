@@ -48,7 +48,7 @@ export function TicketsGuard({ children }: { children: React.ReactNode }) {
       <div
         role="status"
         aria-live="polite"
-        className="rounded-md border border-[--color-border] bg-[--color-surface] p-6 text-sm text-[--color-text-muted]"
+        className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-sm text-[var(--color-text-muted)]"
       >
         Cargando sesion…
       </div>
@@ -60,7 +60,7 @@ export function TicketsGuard({ children }: { children: React.ReactNode }) {
       <div
         role="status"
         aria-live="polite"
-        className="rounded-md border border-[--color-border] bg-[--color-surface] p-6 text-sm text-[--color-text-muted]"
+        className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-sm text-[var(--color-text-muted)]"
       >
         Redirigiendo a inicio de sesion…
       </div>

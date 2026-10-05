@@ -28,7 +28,7 @@ export default function HomeRedirect() {
     <div
       role="status"
       aria-live="polite"
-      className="flex items-center justify-center py-20 text-sm text-[--color-on-surface-muted]"
+      className="flex items-center justify-center py-20 text-sm text-[var(--color-on-surface-muted)]"
     >
       Redirigiendo...
     </div>

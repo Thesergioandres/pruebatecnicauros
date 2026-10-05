@@ -57,8 +57,8 @@ export function UsersListClient() {
     <div className="space-y-4">
       <header className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[--color-text]">Usuarios</h1>
-          <p className="text-sm text-[--color-text-muted]">
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--color-text)]">Usuarios</h1>
+          <p className="text-sm text-[var(--color-text-muted)]">
             Gestiona los accesos de clientes y administradores de la plataforma.
           </p>
         </div>
@@ -71,7 +71,7 @@ export function UsersListClient() {
 
       <div aria-busy={isLoading} aria-live="polite">
         {isLoading ? (
-          <div className="rounded-lg border border-[--color-border] bg-[--color-surface] p-10 text-center text-sm text-[--color-text-muted]">
+          <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-10 text-center text-sm text-[var(--color-text-muted)]">
             Cargando usuarios…
           </div>
         ) : users.length === 0 ? (
@@ -85,10 +85,10 @@ export function UsersListClient() {
             }
           />
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-[--color-border] bg-[--color-surface]">
+          <div className="overflow-x-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
             <table className="w-full text-left text-sm">
               <caption className="sr-only">Listado de usuarios</caption>
-              <thead className="bg-[--color-surface-muted] text-xs uppercase tracking-wide text-[--color-text-muted]">
+              <thead className="bg-[var(--color-surface-muted)] text-xs uppercase tracking-wide text-[var(--color-text-muted)]">
                 <tr>
                   <th scope="col" className="px-4 py-3 font-semibold">Nombre</th>
                   <th scope="col" className="px-4 py-3 font-semibold">Email</th>
@@ -96,15 +96,15 @@ export function UsersListClient() {
                   <th scope="col" className="px-4 py-3 font-semibold">Alta</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[--color-border]">
+              <tbody className="divide-y divide-[var(--color-border)]">
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-[--color-surface-muted]/60">
-                    <td className="px-4 py-3 align-top font-medium text-[--color-text]">{user.name}</td>
-                    <td className="px-4 py-3 align-top text-[--color-text-muted]">{user.email}</td>
+                  <tr key={user.id} className="hover:bg-[var(--color-surface-muted)]/60">
+                    <td className="px-4 py-3 align-top font-medium text-[var(--color-text)]">{user.name}</td>
+                    <td className="px-4 py-3 align-top text-[var(--color-text-muted)]">{user.email}</td>
                     <td className="px-4 py-3 align-top">
                       <Badge tone={ROLE_TONE[user.role]}>{ROLE_LABELS[user.role]}</Badge>
                     </td>
-                    <td className="px-4 py-3 align-top text-xs text-[--color-text-muted]">
+                    <td className="px-4 py-3 align-top text-xs text-[var(--color-text-muted)]">
                       {formatDateTime(user.createdAt)}
                     </td>
                   </tr>

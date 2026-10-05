@@ -50,6 +50,35 @@ export function LoginForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Accesos rapidos de prueba: rellenan los campos con las credenciales
+  // del mock (admin@soporte.local / demo@soporte.local) y disparan el
+  // submit. Solo utiles cuando el front corre con la API mock
+  // (NEXT_PUBLIC_API_MODE=mock); en modo remoto contra el backend real
+  // estas cuentas no existen y el login falla con INVALID_CREDENTIALS.
+  const QUICK_ACCESS: { label: string; email: string; password: string }[] = [
+    {
+      label: "Entrar como admin",
+      email: "adminitmanagement@gmail.com",
+      password: "ItManagement.2",
+    },
+    {
+      label: "Entrar como cliente",
+      email: "clienteitmanagement@gmail.com",
+      password: "ClienteItManagement.2",
+    },
+  ];
+
+  function handleQuickAccess(emailValue: string, passwordValue: string) {
+    if (isSubmitting) return;
+    setEmail(emailValue);
+    setPassword(passwordValue);
+    setFieldErrors({});
+    setFormError(null);
+    // Pasamos los valores directamente al submit para evitar una
+    // carrera con el setState asincrono de React.
+    void runSubmit(emailValue, passwordValue);
+  }
+
   function clearFieldError(name: keyof LoginInput) {
     setFieldErrors((prev) => {
       if (!prev[name]) return prev;
@@ -63,11 +92,8 @@ export function LoginForm() {
     ref.current?.focus();
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFormError(null);
-
-    const parsed = loginSchema.safeParse({ email, password });
+  async function runSubmit(emailValue: string, passwordValue: string) {
+    const parsed = loginSchema.safeParse({ email: emailValue, password: passwordValue });
     if (!parsed.success) {
       const errs = issuesToFieldErrors(parsed.error.issues);
       setFieldErrors(errs);
@@ -108,6 +134,12 @@ export function LoginForm() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setFormError(null);
+    await runSubmit(email, password);
   }
 
   const emailHasError = Boolean(fieldErrors.email);
@@ -268,6 +300,26 @@ export function LoginForm() {
         >
           {isSubmitting ? null : "Entrar"}
         </Button>
+
+        {/* Accesos rapidos: rellenan y envian el login de prueba. */}
+        <div className="pt-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 text-center mb-2">
+            Accesos rapidos
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {QUICK_ACCESS.map((qa) => (
+              <button
+                key={qa.label}
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => handleQuickAccess(qa.email, qa.password)}
+                className="rounded-md border border-dashed border-slate-300 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:border-slate-400 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {qa.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </form>
     </div>
   );

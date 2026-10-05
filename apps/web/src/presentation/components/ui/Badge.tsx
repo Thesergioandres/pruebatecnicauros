@@ -27,19 +27,19 @@ export type BadgeTone =
 
 const TONE_CLASS: Record<BadgeTone, string> = {
   neutral:
-    "bg-[--color-neutral-bg] text-[--color-on-surface-muted] border-[--color-neutral-border]",
-  info: "bg-[--color-info-bg] text-[--color-info] border-[--color-info-border]",
+    "bg-[var(--color-neutral-bg)] text-[var(--color-on-surface-muted)] border-[var(--color-neutral-border)]",
+  info: "bg-[var(--color-info-bg)] text-[var(--color-info)] border-[var(--color-info-border)]",
   success:
-    "bg-[--color-success-bg] text-[--color-success] border-[--color-success-border]",
+    "bg-[var(--color-success-bg)] text-[var(--color-success)] border-[var(--color-success-border)]",
   warning:
-    "bg-[--color-medium-bg] text-[--color-medium] border-[--color-medium-border]",
+    "bg-[var(--color-medium-bg)] text-[var(--color-medium)] border-[var(--color-medium-border)]",
   danger:
-    "bg-[--color-critical-bg] text-[--color-critical] border-[--color-critical-border]",
+    "bg-[var(--color-critical-bg)] text-[var(--color-critical)] border-[var(--color-critical-border)]",
   critical:
-    "bg-[--color-critical-bg] text-[--color-critical] border-[--color-critical-border]",
-  high: "bg-[--color-high-bg] text-[--color-high] border-[--color-high-border]",
+    "bg-[var(--color-critical-bg)] text-[var(--color-critical)] border-[var(--color-critical-border)]",
+  high: "bg-[var(--color-high-bg)] text-[var(--color-high)] border-[var(--color-high-border)]",
   medium:
-    "bg-[--color-medium-bg] text-[--color-medium] border-[--color-medium-border]",
+    "bg-[var(--color-medium-bg)] text-[var(--color-medium)] border-[var(--color-medium-border)]",
 };
 
 export interface BadgeProps {

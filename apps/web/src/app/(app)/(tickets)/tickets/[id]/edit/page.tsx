@@ -56,7 +56,7 @@ function EditTicketLoader({ params }: { params: Promise<{ id: string }> }) {
       <p
         role="status"
         aria-live="polite"
-        className="rounded-md border border-[--color-border] bg-[--color-surface] p-10 text-center text-sm text-[--color-text-muted]"
+        className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-10 text-center text-sm text-[var(--color-text-muted)]"
       >
         Cargando solicitud…
       </p>

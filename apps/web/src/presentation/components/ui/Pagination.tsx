@@ -27,11 +27,11 @@ export function Pagination({
   return (
     <nav
       aria-label="Paginación"
-      className="flex flex-col items-start justify-between gap-3 border-t border-[--color-border] px-1 py-3 text-sm sm:flex-row sm:items-center"
+      className="flex flex-col items-start justify-between gap-3 border-t border-[var(--color-border)] px-1 py-3 text-sm sm:flex-row sm:items-center"
     >
-      <p className="text-[--color-text-muted]">
-        Mostrando <span className="font-semibold text-[--color-text]">{desde}–{hasta}</span> de{" "}
-        <span className="font-semibold text-[--color-text]">{total}</span> {label}
+      <p className="text-[var(--color-text-muted)]">
+        Mostrando <span className="font-semibold text-[var(--color-text)]">{desde}–{hasta}</span> de{" "}
+        <span className="font-semibold text-[var(--color-text)]">{total}</span> {label}
       </p>
       <div className="flex items-center gap-2">
         <Button
@@ -43,7 +43,7 @@ export function Pagination({
         >
           Anterior
         </Button>
-        <span aria-live="polite" className="px-1 text-[--color-text-muted]">
+        <span aria-live="polite" className="px-1 text-[var(--color-text-muted)]">
           Página {safePage} de {totalPages}
         </span>
         <Button

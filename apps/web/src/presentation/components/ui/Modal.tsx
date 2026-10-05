@@ -140,26 +140,26 @@ export function Modal({
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
-        className={`relative z-10 w-full ${SIZE_CLASS[size]} rounded-xl bg-[--color-surface] shadow-[0_20px_25px_-5px_rgba(15,23,42,0.12),0_8px_10px_-6px_rgba(15,23,42,0.06)] border border-[--color-border] outline-none animate-[scaleIn_0.15s_ease-out]`}
+        className={`relative z-10 w-full ${SIZE_CLASS[size]} rounded-xl bg-[var(--color-surface)] shadow-[0_20px_25px_-5px_rgba(15,23,42,0.12),0_8px_10px_-6px_rgba(15,23,42,0.06)] border border-[var(--color-border)] outline-none animate-[scaleIn_0.15s_ease-out]`}
       >
         {/* Header */}
-        <header className="flex items-start gap-3 px-6 py-5 border-b border-[--color-border-faint]">
+        <header className="flex items-start gap-3 px-6 py-5 border-b border-[var(--color-border-faint)]">
           {icon ? (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[--color-brand-50] text-[--color-brand-600]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-50)] text-[var(--color-brand-600)]">
               {icon}
             </div>
           ) : null}
           <div className="flex-1 min-w-0">
             <h2
               id={titleId}
-              className="text-lg font-semibold tracking-tight text-[--color-on-surface]"
+              className="text-lg font-semibold tracking-tight text-[var(--color-on-surface)]"
             >
               {title}
             </h2>
             {description ? (
               <p
                 id={descriptionId}
-                className="mt-1 text-sm text-[--color-on-surface-muted]"
+                className="mt-1 text-sm text-[var(--color-on-surface-muted)]"
               >
                 {description}
               </p>
@@ -169,7 +169,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="shrink-0 -m-1 p-1 rounded-md text-[--color-on-surface-faint] hover:bg-[--color-surface-muted] hover:text-[--color-on-surface] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-500] transition-colors"
+            className="shrink-0 -m-1 p-1 rounded-md text-[var(--color-on-surface-faint)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-on-surface)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-500)] transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path
@@ -187,7 +187,7 @@ export function Modal({
 
         {/* Footer */}
         {footer ? (
-          <footer className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[--color-border-faint] bg-[--color-surface-container-low] rounded-b-xl">
+          <footer className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[var(--color-border-faint)] bg-[var(--color-surface-container-low)] rounded-b-xl">
             {footer}
           </footer>
         ) : null}

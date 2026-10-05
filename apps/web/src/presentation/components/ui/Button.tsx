@@ -34,13 +34,13 @@ const BASE =
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    "bg-[--color-brand-500] text-white hover:bg-[--color-brand-600] focus-visible:outline-[--color-brand-500] shadow-sm",
+    "bg-[var(--color-brand-500)] text-white hover:bg-[var(--color-brand-600)] focus-visible:outline-[var(--color-brand-500)] shadow-sm",
   secondary:
-    "bg-[--color-surface] text-[--color-on-surface] border border-[--color-border] hover:bg-[--color-surface-muted] focus-visible:outline-[--color-brand-500]",
+    "bg-[var(--color-surface)] text-[var(--color-on-surface)] border border-[var(--color-border)] hover:bg-[var(--color-surface-muted)] focus-visible:outline-[var(--color-brand-500)]",
   ghost:
-    "bg-transparent text-[--color-on-surface-muted] hover:bg-[--color-surface-muted] hover:text-[--color-on-surface] focus-visible:outline-[--color-brand-500]",
+    "bg-transparent text-[var(--color-on-surface-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-on-surface)] focus-visible:outline-[var(--color-brand-500)]",
   danger:
-    "bg-[--color-critical] text-white hover:opacity-90 focus-visible:outline-[--color-critical]",
+    "bg-[var(--color-critical)] text-white hover:opacity-90 focus-visible:outline-[var(--color-critical)]",
 };
 
 const SIZES: Record<ButtonSize, string> = {

@@ -64,12 +64,12 @@ export function CancelForm({ ticket }: CancelFormProps) {
   return (
     <form
       onSubmit={(event) => void handleSubmit(event)}
-      className="space-y-3 rounded-lg border border-[--color-danger-200] bg-[--color-danger-50]/40 p-4"
+      className="space-y-3 rounded-lg border border-[var(--color-danger-200)] bg-[var(--color-danger-50)]/40 p-4"
       aria-label="Cancelar solicitud"
     >
       <header>
-        <h3 className="text-sm font-semibold text-[--color-text]">Cancelar solicitud</h3>
-        <p className="text-xs text-[--color-text-muted]">
+        <h3 className="text-sm font-semibold text-[var(--color-text)]">Cancelar solicitud</h3>
+        <p className="text-xs text-[var(--color-text-muted)]">
           Pasa la solicitud a {TICKET_STATUS_LABELS.CANCELADA} (estado terminal). Añade una observación si aplica.
         </p>
       </header>

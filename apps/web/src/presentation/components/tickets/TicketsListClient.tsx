@@ -109,10 +109,10 @@ export function TicketsListClient({ initialFilter, initialPage = 1 }: TicketsLis
     <div className="space-y-4">
       <header className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[--color-text]">
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--color-text)]">
             {isAdmin ? "Todas las solicitudes" : "Mis solicitudes"}
           </h1>
-          <p className="text-sm text-[--color-text-muted]">
+          <p className="text-sm text-[var(--color-text-muted)]">
             {isAdmin
               ? "Busca, filtra y revisa el estado de las solicitudes de toda la plataforma."
               : "Busca, filtra y revisa el estado de tus solicitudes de soporte."}
@@ -135,7 +135,7 @@ export function TicketsListClient({ initialFilter, initialPage = 1 }: TicketsLis
 
       <div aria-busy={isLoading} aria-live="polite" className="space-y-3">
         {isLoading && !result ? (
-          <div className="rounded-lg border border-[--color-border] bg-[--color-surface] p-10 text-center text-sm text-[--color-text-muted]">
+          <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-10 text-center text-sm text-[var(--color-text-muted)]">
             Cargando solicitudes…
           </div>
         ) : (

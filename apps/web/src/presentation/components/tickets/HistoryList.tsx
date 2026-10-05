@@ -68,12 +68,12 @@ export function HistoryList({ ticketId }: HistoryListProps) {
         <p
           role="status"
           aria-live="polite"
-          className="rounded-md border border-[--color-border] bg-[--color-surface] p-6 text-center text-sm text-[--color-text-muted]"
+          className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-text-muted)]"
         >
           Cargando historial…
         </p>
       ) : items.length === 0 ? (
-        <p className="rounded-md border border-dashed border-[--color-border] bg-[--color-surface] p-6 text-center text-sm text-[--color-text-muted]">
+        <p className="rounded-md border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-text-muted)]">
           Aún no hay cambios registrados.
         </p>
       ) : (
@@ -84,21 +84,21 @@ export function HistoryList({ ticketId }: HistoryListProps) {
             return (
               <li
                 key={entry.id}
-                className="rounded-md border border-[--color-border] bg-[--color-surface] p-3 text-sm"
+                className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-semibold text-[--color-text]">
+                  <p className="font-semibold text-[var(--color-text)]">
                     {desde} → {hasta}
                   </p>
-                  <time dateTime={entry.createdAt} className="text-xs text-[--color-text-muted]">
+                  <time dateTime={entry.createdAt} className="text-xs text-[var(--color-text-muted)]">
                     {formatDateTime(entry.createdAt)}
                   </time>
                 </div>
-                <p className="mt-1 text-xs text-[--color-text-muted]">
-                  Por <span className="font-medium text-[--color-text]">{entry.changedBy.name}</span>
+                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                  Por <span className="font-medium text-[var(--color-text)]">{entry.changedBy.name}</span>
                 </p>
                 {entry.observation ? (
-                  <p className="mt-2 rounded-md bg-[--color-surface-muted] p-2 text-sm text-[--color-text]">
+                  <p className="mt-2 rounded-md bg-[var(--color-surface-muted)] p-2 text-sm text-[var(--color-text)]">
                     {entry.observation}
                   </p>
                 ) : null}

@@ -125,28 +125,6 @@
     0 4px 6px -4px rgba(15, 23, 42, 0.05);
   --shadow-modal: 0 20px 25px -5px rgba(15, 23, 42, 0.12),
     0 8px 10px -6px rgba(15, 23, 42, 0.06);
-
-  /* ---------- Aliases de compatibilidad ----------
-     Mapean los nombres de tokens previos (shell/login antiguos) a los
-     nuevos semanticos. Asi ningun componente queda con clases que
-     apunten a variables inexistentes (texto/bordes invisibles). */
-  --color-text: var(--color-on-surface);
-  --color-text-muted: var(--color-on-surface-muted);
-  --color-text-faint: var(--color-on-surface-faint);
-  --color-canvas: var(--color-canvas);
-  --color-danger-50: var(--color-critical-bg);
-  --color-danger-200: var(--color-critical-border);
-  --color-danger-700: var(--color-critical);
-  --color-danger-soft: var(--color-critical-soft);
-  --color-success-50: var(--color-success-bg);
-  --color-success-700: var(--color-success);
-  --color-warning-50: var(--color-medium-bg);
-  --color-warning-700: var(--color-medium);
-  --color-info-50: var(--color-info-bg);
-  --color-info-700: var(--color-info);
-  --color-neutral-bg: var(--color-neutral-bg);
-  --color-neutral-border: var(--color-neutral-border);
-  --color-neutral-text: var(--color-on-surface-muted);
 }
 
 /* =========================================================================
