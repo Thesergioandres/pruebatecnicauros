@@ -94,5 +94,65 @@ prioridad/categoría), REQ-F10 (ordenar), REQ-F11 (paginar).
 - [ ] Cada cambio crea entrada de historial (REQ-H1..H5) en la misma transacción
 - [ ] UI control de cambio estado con observación; tests integración
 **Verificación:** `npm test` + playwright transición Pendiente→En progreso→Resuelta.
-**Dependencia
+**Dependencias:** T5, T2. **Archivos:** `src/app/api/tickets/[id]/transitions/route.ts`, UI detalle.
+
+## T8 — Historial de cambios
+**Requisitos:** REQ-F7 + REQ-H1..H5 (anterior, nuevo, fecha/hora, responsable, observación).
+**Criterios:**
+- [ ] Cada transición inserta fila `StatusHistory` en la misma transacción DB
+- [ ] `GET /api/tickets/:id` incluye `history` ordenado ascendente
+- [ ] UI muestra timeline con los 5 campos
+- [ ] Tests integración: historial crece 1 por transición, orden correcto
+**Verificación:** `npm test`.
+**Dependencias:** T7. **Archivos:** repositorio Prisma, UI detalle.
+
+## T9 — Eliminar o cancelar
+**Requisitos:** REQ-F6 (eliminar o cancelar).
+**Criterios:**
+- [ ] `DELETE /api/tickets/:id` borrado físico → 204; inexistente → 404
+- [ ] UI botón eliminar con confirmación (sin `confirm()` nativo; diálogo propio)
+- [ ] Cancelada disponible como borrado lógico vía transición (T7)
+- [ ] Tests integración 204/404
+**Verificación:** `npm test` + playwright eliminar.
+**Dependencias:** T5. **Archivos:** `src/app/api/tickets/[id]/route.ts`, UI.
+
+## T10 — UI: páginas + estados + a11y
+**Requisitos:** REQ-UI (formularios validados, carga/error/vacío, responsive, labels).
+**Criterios:**
+- [ ] `/tickets` lista + `/tickets/new` crear + `/tickets/:id` detalle/editar/estado
+- [ ] Validación frontend espeja backend (requeridos, emails, enums, longitudes)
+- [ ] Keyboard nav, contraste, `alt`/`width`/`height` donde aplique
+- [ ] playwright-cli: snapshot + `console` sin errores en los 3 flujos
+**Verificación:** `npm run build` + smoke browser.
+**Dependencias:** T3–T9.
+
+## T11 — Verificación + commits + push
+**Requisitos:** REQ-GIT (≥5 commits en develop, historia limpia).
+**Criterios:**
+- [ ] `npm run lint` 0, `npx tsc --noEmit` 0, `npm test` 0 skipped, `npm run build` 0
+- [ ] Cobertura dominio 100%, crítico ≥80%
+- [ ] Commits Conventional Commits, 1 por slice; push develop al remoto
+**Verificación:** comandos + `git log --oneline`.
+**Dependencias:** T10.
+
+## T12 — README + decisiones + merge a main
+**Requisitos:** REQ-DOC (instalar, env, DB, correr front/back, decisiones, supuestos).
+**Criterios:**
+- [ ] README: setup, `.env`, migraciones, seed, scripts, endpoints, decisiones,
+      supuestos (sin auth, requesterEmail opcional, Resend test-mode), trade-offs
+- [ ] Merge develop → main (1 merge commit), push main
+- [ ] Checklist compliance spec línea por línea en la entrega
+**Verificación:** `git log --oneline --graph` muestra merge a main.
+**Dependencias:** T11.
+
+## T13 — Notificaciones por email con Resend (EN SCOPE, pedido usuario)
+**Requisitos:** REQ-OPT4 (notificación en eventos, vía email).
+**Criterios:**
+- [ ] Al crear ticket (con `requesterEmail`): email "solicitud recibida"
+- [ ] Al cambiar estado: email con anterior → nuevo + observación + actor
+- [ ] Sin `RESEND_API_KEY`: degradación graceful (log, no cae el request)
+- [ ] Clave SOLO en `.env` local; `.env.example` con placeholder vacío
+- [ ] Tests: payload del email (mock Resend), skip-send sin clave
+**Verificación:** `npm test` + envío real opcional con clave del usuario.
+**Dependencias:** T3, T7. **Archivos:** `src/server/infrastructure/mail/*`.
 ...[truncated 1580 chars]

@@ -1,0 +1,65 @@
+// Canonical domain values are Spanish labels (spec). DB stores UPPER_SNAKE codes.
+// Mapping lives in src/server/infrastructure/ticketMappers.ts.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Category {
+  Hardware
+  Software
+  Red
+  Accesos
+  Otros
+}
+
+enum Priority {
+  Baja
+  Media
+  Alta
+  Critica
+}
+
+enum TicketStatus {
+  Pendiente
+  EnProgreso
+  Resuelta
+  Cancelada
+}
+
+model Ticket {
+  id             String          @id @default(cuid())
+  title          String
+  description    String
+  requester      String
+  requesterEmail String?
+  category       Category
+  priority       Priority
+  status         TicketStatus    @default(Pendiente)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  history        StatusHistory[]
+
+  @@index([status])
+  @@index([priority])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model StatusHistory {
+  id          String       @id @default(cuid())
+  ticket      Ticket       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId    String
+  fromStatus  TicketStatus
+  toStatus    TicketStatus
+  actor       String
+  observation String?
+  createdAt   DateTime     @default(now())
+
+  @@index([ticketId])
+}
