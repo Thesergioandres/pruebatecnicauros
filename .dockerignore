@@ -1,0 +1,51 @@
+# Mantener el contexto de compilacion pequeno: excluimos artefactos y
+# archivos que no son necesarios para compilar la imagen final.
+
+# Dependencias y artefactos de compilacion
+node_modules
+**/node_modules
+dist
+**/dist
+.next
+**/.next
+out
+**/out
+coverage
+**/coverage
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Archivos de entorno (nunca van en una imagen; vienen por variables de
+# entorno)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Control de versiones y editor
+.git
+.gitignore
+.gitattributes
+.github
+.vscode
+.idea
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Documentacion y PDF del enunciado
+README.md
+docs
+pruebatecnica.md
+Prueba*.pdf
+
+# Pruebas E2E y memorias cache de herramientas
+.playwright-cli
+.eslintcache
+.tsbuildinfo
