@@ -4,7 +4,7 @@ import {
   InvalidTransitionError,
   ObservationRequiredError,
 } from "../domain/ticket";
-import { NotFoundError } from "./errors";
+import { CodedError, NotFoundError } from "./errors";
 
 export interface ErrorBody {
   error: {
@@ -46,6 +46,11 @@ export function toErrorResponse(error: unknown): Response {
   }
   if (error instanceof NotFoundError) {
     return Response.json(body(error.code, error.message), { status: 404 });
+  }
+  if (error instanceof CodedError) {
+    return Response.json(body(error.code, error.message), {
+      status: error.status,
+    });
   }
   if (error instanceof InvalidTransitionError) {
     return Response.json(body(error.code, error.message), { status: 409 });

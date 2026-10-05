@@ -6,7 +6,12 @@ import type {
   Ticket,
   TicketStatus,
 } from "../domain/ticket";
-import type { ListQuery, Page, TicketRepository } from "../application/ports";
+import type {
+  ListQuery,
+  Page,
+  TicketRepository,
+} from "../application/ports";
+import type { UpdateTicketInput } from "../application/ticketSchemas";
 import { prisma } from "./db";
 import {
   categoryToDb,
@@ -71,6 +76,52 @@ export const prismaTicketRepository: TicketRepository = {
   async findById(id: string): Promise<Ticket | null> {
     const row = await prisma.ticket.findUnique({ where: { id } });
     return row ? ticketFromDb(row) : null;
+  },
+
+  async findByIdWithHistory(id: string) {
+    const row = await prisma.ticket.findUnique({
+      where: { id },
+      include: { history: { orderBy: { createdAt: "asc" } } },
+    });
+    if (!row) {
+      return null;
+    }
+    return {
+      ticket: ticketFromDb(row),
+      history: row.history.map(historyFromDb),
+    };
+  },
+
+  async update(id: string, data: UpdateTicketInput): Promise<Ticket> {
+    const row = await prisma.ticket.update({
+      where: { id },
+      data: {
+        ...(data.title !== undefined ? { title: data.title } : {}),
+        ...(data.description !== undefined
+          ? { description: data.description }
+          : {}),
+        ...(data.requester !== undefined ? { requester: data.requester } : {}),
+        ...(data.requesterEmail !== undefined
+          ? { requesterEmail: data.requesterEmail }
+          : {}),
+        ...(data.category !== undefined
+          ? { category: categoryToDb(data.category) }
+          : {}),
+        // Priority and its sort weight stay in sync.
+        ...(data.priority !== undefined
+          ? {
+              priority: priorityToDb(data.priority),
+              priorityWeight: PRIORITY_WEIGHT[data.priority],
+            }
+          : {}),
+      },
+    });
+    return ticketFromDb(row);
+  },
+
+  async delete(id: string): Promise<void> {
+    // History rows cascade via the schema relation.
+    await prisma.ticket.delete({ where: { id } });
   },
 
   async recordTransition(entry: {

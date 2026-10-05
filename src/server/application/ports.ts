@@ -6,6 +6,7 @@ import type {
   Ticket,
   TicketStatus,
 } from "../domain/ticket";
+import type { UpdateTicketInput } from "./ticketSchemas";
 
 export interface ListQuery {
   q?: string;
@@ -31,6 +32,11 @@ export interface TicketRepository {
   create(data: NewTicketData): Promise<Ticket>;
   list(query: ListQuery): Promise<Page<Ticket>>;
   findById(id: string): Promise<Ticket | null>;
+  findByIdWithHistory(
+    id: string,
+  ): Promise<{ ticket: Ticket; history: HistoryEntry[] } | null>;
+  update(id: string, data: UpdateTicketInput): Promise<Ticket>;
+  delete(id: string): Promise<void>;
   recordTransition(entry: {
     ticketId: string;
     fromStatus: TicketStatus;
