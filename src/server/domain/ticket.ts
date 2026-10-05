@@ -78,6 +78,38 @@ export interface TransitionContext {
   observation?: string;
 }
 
+export interface NewTicketData {
+  title: string;
+  description: string;
+  requester: string;
+  requesterEmail?: string;
+  category: Category;
+  priority: Priority;
+}
+
+export interface Ticket {
+  id: string;
+  title: string;
+  description: string;
+  requester: string;
+  requesterEmail: string | null;
+  category: Category;
+  priority: Priority;
+  status: TicketStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface HistoryEntry {
+  id: string;
+  ticketId: string;
+  fromStatus: TicketStatus;
+  toStatus: TicketStatus;
+  actor: string;
+  observation: string | null;
+  createdAt: Date;
+}
+
 /**
  * Throws InvalidTransitionError or ObservationRequiredError.
  * Why separate errors with codes: the API maps each to a distinct
