@@ -281,21 +281,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </button>
       </div>
 
-      {/* Footer: cluster operativo (estilo Stitch) */}
-      <div className="m-3 p-3 rounded-lg border border-[--color-sidebar-divider] bg-[rgba(15,23,42,0.5)]">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-[--color-info] opacity-75 animate-ping" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-[--color-info]" />
-          </span>
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-[--color-sidebar-text]">
-            Cluster Operativo
-          </span>
-        </div>
-        <p className="mt-1.5 font-mono text-[11px] text-[--color-sidebar-text-muted]">
-          EU-1 · 99.98% uptime
-        </p>
-      </div>
     </nav>
   );
 }
