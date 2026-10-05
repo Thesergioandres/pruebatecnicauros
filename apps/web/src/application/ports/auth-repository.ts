@@ -11,4 +11,8 @@ export interface AuthRepository {
   login(input: LoginInput): Promise<AuthSession>;
   register(input: RegisterInput): Promise<AuthSession>;
   logout(): Promise<void>;
+  // Recupera la sesion activa desde el backend (cookie httpOnly). Devuelve
+  // `null` si no hay sesion valida. Lo usa `SessionProvider` al montar la
+  // app para restaurar la sesion tras un reload.
+  getCurrentSession(): Promise<AuthSession | null>;
 }

@@ -7,57 +7,45 @@ import {
 
 import type { AuthSession } from "../../domain/auth.js";
 import { HttpError } from "../../infrastructure/http-client.js";
+import { getUserStore } from "./user-store.js";
 import type { AuthRepository } from "../ports/auth-repository.js";
 
 /**
  * Implementacion en memoria del puerto de autenticacion.
  *
- * El shell se entrega sin API disponible (lanes A/B la construyen en paralelo),
- * asi que este adapter devuelve la misma forma DTO que entregara la API real
- * (`AuthSession` con `user`, `issuedAt`, `expiresAt`) y replica los codigos de
- * error tipados de `packages/shared/src/errors.ts` (`INVALID_CREDENTIALS`,
- * `EMAIL_ALREADY_REGISTERED`).
+ * Replica el contrato DTO que entregara la API real
+ * (`AuthSession` con `user`, `issuedAt`, `expiresAt`) y replica
+ * los codigos de error tipados de `packages/shared/src/errors.ts`
+ * (`INVALID_CREDENTIALS`, `EMAIL_ALREADY_REGISTERED`).
  *
- * Cuando la API real este lista se sustituye por un `RemoteAuthRepository` en
- * `infrastructure/` que use `httpClient` (cookie httpOnly, same-origin).
+ * La tienda de usuarios es la misma que usa el panel admin, asi
+ * un usuario creado desde alli puede iniciar sesion de inmediato.
+ * Cuando la API real este lista se sustituye por un
+ * `RemoteAuthRepository` en `infrastructure/` que use `httpClient`
+ * (cookie httpOnly, same-origin).
  *
  * Reglas del mock (solo para demo del shell):
- *  - Cualquier email con contrasena valida (>7 chars) inicia sesion.
- *  - Email `taken@soporte.local` simula cuenta ya registrada (409).
- *  - Contrasena literal `wrongpass` simula credenciales invalidas (401).
+ *  - Cualquier contrasena que no sea literalmente `wrongpass` pasa
+ *    la validacion de credenciales.
+ *  - `register` (no se usa en la UI: el registro es interno del admin)
+ *    valida que el email no exista.
  */
 
 const SESSION_TTL_MS = 1000 * 60 * 60 * 8; // 8h, igual que SESSION_TTL_HOURS
 
-const KNOWN_ACCOUNTS = new Map<string, { name: string; password: string }>([
-  ["demo@soporte.local", { name: "Persona Demo", password: "demo1234" }],
-  ["admin@soporte.local", { name: "Admin Demo", password: "admin1234" }],
-]);
-
-const TAKEN_EMAILS = new Set<string>(["taken@soporte.local"]);
-
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-const SESSION_USER_POOL = new Map<string, string>(); // email -> id
-
-function ensureUserId(email: string): string {
-  let id = SESSION_USER_POOL.get(email);
-  if (!id) {
-    id = crypto.randomUUID();
-    SESSION_USER_POOL.set(email, id);
-  }
-  return id;
-}
-
-function buildSession(email: string, name: string): AuthSession {
+function buildSession(
+  user: { id: string; name: string; email: string; role: "ADMIN" | "USER" },
+): AuthSession {
   const issuedAt = new Date();
   const expiresAt = new Date(issuedAt.getTime() + SESSION_TTL_MS);
   return {
     user: {
-      id: ensureUserId(email),
-      name,
-      email,
-      role: email.startsWith("admin") ? "ADMIN" : "USER",
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
     },
     issuedAt: issuedAt.toISOString(),
     expiresAt: expiresAt.toISOString(),
@@ -73,6 +61,14 @@ function failWith(
   throw new HttpError(status, ERROR_CODES[code], message, details);
 }
 
+function findByEmail(email: string) {
+  const normalized = email.trim().toLowerCase();
+  for (const user of getUserStore().values()) {
+    if (user.email === normalized) return user;
+  }
+  return null;
+}
+
 export class InMemoryAuthRepository implements AuthRepository {
   async login(input: LoginInput): Promise<AuthSession> {
     await delay(450);
@@ -81,15 +77,20 @@ export class InMemoryAuthRepository implements AuthRepository {
       failWith("INVALID_CREDENTIALS", "Email o contrasena incorrectos.", 401);
     }
 
-    const account = KNOWN_ACCOUNTS.get(input.email);
-    const name = account?.name ?? input.email.split("@")[0] ?? "Usuario";
-    return buildSession(input.email, name);
+    const account = findByEmail(input.email);
+    if (!account) {
+      failWith("INVALID_CREDENTIALS", "Email o contrasena incorrectos.", 401);
+    }
+    if (account.password !== input.password) {
+      failWith("INVALID_CREDENTIALS", "Email o contrasena incorrectos.", 401);
+    }
+    return buildSession(account);
   }
 
   async register(input: RegisterInput): Promise<AuthSession> {
     await delay(500);
 
-    if (TAKEN_EMAILS.has(input.email)) {
+    if (findByEmail(input.email)) {
       failWith(
         "EMAIL_ALREADY_REGISTERED",
         "Ya existe una cuenta registrada con ese email.",
@@ -97,19 +98,25 @@ export class InMemoryAuthRepository implements AuthRepository {
       );
     }
 
-    if (KNOWN_ACCOUNTS.has(input.email)) {
-      failWith(
-        "EMAIL_ALREADY_REGISTERED",
-        "Ya existe una cuenta registrada con ese email.",
-        409,
-      );
-    }
-
-    KNOWN_ACCOUNTS.set(input.email, { name: input.name, password: input.password });
-    return buildSession(input.email, input.name);
+    // El registro publico ya no existe en la UI. Este metodo queda como
+    // adaptador para el caso legacy o tests, pero no se invoca desde
+    // ninguna pantalla del shell.
+    failWith(
+      "FORBIDDEN",
+      "El registro publico esta deshabilitado. Pide a un administrador que cree la cuenta.",
+      403,
+    );
   }
 
   async logout(): Promise<void> {
     await delay(150);
+  }
+
+  // El mock no persiste sesion: tras un reload siempre devuelve `null`,
+  // asi la UI redirige a /login. En la API real este metodo llama a
+  // `GET /api/auth/me` que respeta la cookie httpOnly.
+  async getCurrentSession(): Promise<AuthSession | null> {
+    await delay(50);
+    return null;
   }
 }

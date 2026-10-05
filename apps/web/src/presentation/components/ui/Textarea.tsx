@@ -2,23 +2,20 @@ import { useId } from "react";
 
 import type { ChangeEvent, ReactNode } from "react";
 
-export interface TextFieldProps {
+export interface TextareaProps {
   label: string;
   name: string;
   value: string;
   onChange: (value: string) => void;
-  type?: "text" | "email" | "password" | "tel" | "url" | "search";
   error?: string;
   hint?: ReactNode;
   required?: boolean;
-  autoComplete?: string;
-  inputMode?: "text" | "email" | "numeric" | "tel" | "url" | "search";
   disabled?: boolean;
   placeholder?: string;
-  describedBy?: string;
-  onBlur?: () => void;
+  rows?: number;
   maxLength?: number;
-  ref?: React.Ref<HTMLInputElement>;
+  describedBy?: string;
+  ref?: React.Ref<HTMLTextAreaElement>;
 }
 
 const FIELD_BASE =
@@ -30,35 +27,32 @@ const FIELD_BASE =
 const FIELD_BORDER = "border-[--color-border]";
 const FIELD_INVALID = "border-[--color-danger-700] focus:border-[--color-danger-700] focus:ring-[--color-danger-700]/30";
 
-export function TextField({
+export function Textarea({
   label,
   name,
   value,
   onChange,
-  type = "text",
   error,
   hint,
   required,
-  autoComplete,
-  inputMode,
   disabled,
   placeholder,
-  describedBy,
-  onBlur,
+  rows = 4,
   maxLength,
+  describedBy,
   ref,
-}: TextFieldProps) {
+}: TextareaProps) {
   const reactId = useId();
-  const inputId = `field-${name}-${reactId}`;
-  const errorId = `${inputId}-error`;
-  const hintId = `${inputId}-hint`;
+  const textareaId = `field-${name}-${reactId}`;
+  const errorId = `${textareaId}-error`;
+  const hintId = `${textareaId}-hint`;
   const describedByIds = [error ? errorId : null, hint ? hintId : null, describedBy]
     .filter(Boolean)
     .join(" ");
 
   return (
     <div className="space-y-1.5">
-      <label htmlFor={inputId} className="block text-sm font-medium text-[--color-text]">
+      <label htmlFor={textareaId} className="block text-sm font-medium text-[--color-text]">
         {label}
         {required ? (
           <span aria-hidden="true" className="ml-0.5 text-[--color-danger-700]">
@@ -66,24 +60,21 @@ export function TextField({
           </span>
         ) : null}
       </label>
-      <input
-        id={inputId}
+      <textarea
+        id={textareaId}
         ref={ref}
         name={name}
-        type={type}
         value={value}
-        onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value)}
-        onBlur={onBlur}
+        onChange={(event: ChangeEvent<HTMLTextAreaElement>) => onChange(event.target.value)}
         required={required}
-        autoComplete={autoComplete}
-        inputMode={inputMode}
         disabled={disabled}
         placeholder={placeholder}
+        rows={rows}
+        maxLength={maxLength}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedByIds || undefined}
         aria-required={required || undefined}
-        maxLength={maxLength}
-        className={[FIELD_BASE, error ? FIELD_INVALID : FIELD_BORDER].join(" ")}
+        className={[FIELD_BASE, "resize-y", error ? FIELD_INVALID : FIELD_BORDER].join(" ")}
       />
       {hint ? (
         <p id={hintId} className="text-xs text-[--color-text-muted]">

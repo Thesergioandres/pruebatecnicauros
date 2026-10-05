@@ -1,10 +1,22 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 
-import { AppHeader } from "../presentation/components/AppHeader.js";
-import { SkipLink } from "../presentation/components/SkipLink.js";
 import { SessionProvider } from "../presentation/providers/SessionProvider.js";
+import { SkipLink } from "../presentation/components/SkipLink.js";
 
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -17,12 +29,15 @@ export const metadata: Metadata = {
   authors: [{ name: "Equipo de Soporte" }],
   formatDetection: { email: false, telephone: false },
   robots: { index: false, follow: false },
+  icons: {
+    icon: [{ url: "/icon", type: "image/png" }],
+  },
 };
 
-export const viewport = {
+export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#2c55d1",
+  themeColor: "#3525cd",
 };
 
 export default function RootLayout({
@@ -31,23 +46,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body className="min-h-screen bg-[--color-surface-muted] text-[--color-text]">
+    <html
+      lang="es"
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
+    >
+      <body className="bg-[--color-canvas] text-[--color-on-surface] font-sans antialiased">
         <SessionProvider>
           <SkipLink />
-          <AppHeader />
-          <main
-            id="main-content"
-            tabIndex={-1}
-            className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10"
-          >
-            {children}
-          </main>
-          <footer className="mx-auto w-full max-w-5xl px-4 py-6 text-xs text-[--color-text-muted] sm:px-6">
-            <p>
-              Soporte interno · Construido con Next.js, TypeScript y Tailwind.
-            </p>
-          </footer>
+          {children}
         </SessionProvider>
       </body>
     </html>
