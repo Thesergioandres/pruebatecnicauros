@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import type { ReactNode } from "react";
 
+import { authContainer } from "../../../infrastructure/container.js";
 import { useSession } from "../../hooks/useSession.js";
 import { BrandMark } from "../Brand.js";
 
@@ -187,10 +188,19 @@ function isActive(pathname: string, item: NavItem): boolean {
 }
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
-  const { session } = useSession();
+  const { session, setSession } = useSession();
   const pathname = usePathname() ?? "";
+  const router = useRouter();
   const isAdmin = session?.user.role === "ADMIN";
   const sections = isAdmin ? ADMIN_SECTIONS : USER_SECTIONS;
+
+  // Cierra la sesion y vuelve al login. Visible siempre al pie del sidebar.
+  async function handleLogout() {
+    await authContainer.logout();
+    setSession(null);
+    onNavigate?.();
+    router.push("/login");
+  }
 
   return (
     <nav
@@ -255,6 +265,20 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             </ul>
           </div>
         ))}
+      </div>
+
+      {/* Cierre de sesion siempre visible */}
+      <div className="px-3 pb-2">
+        <button
+          type="button"
+          onClick={() => void handleLogout()}
+          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-semibold text-[--color-sidebar-text] hover:bg-[--color-sidebar-bg-hover] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-400] transition-colors"
+        >
+          <span className="text-[--color-sidebar-text-muted]" aria-hidden>
+            <Icon name="logout" />
+          </span>
+          <span className="truncate">Cerrar sesion</span>
+        </button>
       </div>
 
       {/* Footer: cluster operativo (estilo Stitch) */}
