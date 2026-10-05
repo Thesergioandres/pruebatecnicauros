@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+   Tokens de diseño (Tailwind v4 - CSS-first config)
+   --------------------------------------------------------------- */
+@theme {
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #d9e4ff;
+  --color-brand-200: #b6c8ff;
+  --color-brand-500: #3b6cf3;
+  --color-brand-600: #2c55d1;
+  --color-brand-700: #1f3fa3;
+
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f7fb;
+
+  --color-border: #e3e7ef;
+  --color-border-strong: #cbd2dd;
+
+  --color-text: #0e1726;
+  --color-text-muted: #5a6679;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-200: #fecaca;
+  --color-danger-700: #b91c1c;
+
+  --color-success-50: #f0fdf4;
+  --color-success-700: #15803d;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---------------------------------------------------------------
+   Base
+   --------------------------------------------------------------- */
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    background-color: var(--color-surface-muted);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  *:focus {
+    outline: none;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-100);
+    color: var(--color-text);
+  }
+}
+
+/* ---------------------------------------------------------------
+   Components
+   --------------------------------------------------------------- */
+@layer components {
+  .skip-link {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 100;
+    transform: translateY(-150%);
+    background-color: var(--color-brand-600);
+    color: #fff;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.15s ease-in-out;
+  }
+
+  .skip-link:focus,
+  .skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+}
