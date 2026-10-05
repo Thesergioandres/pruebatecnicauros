@@ -1,13 +1,35 @@
 import type {
+  Category,
   HistoryEntry,
   NewTicketData,
+  Priority,
   Ticket,
   TicketStatus,
 } from "../domain/ticket";
 
+export interface ListQuery {
+  q?: string;
+  status?: TicketStatus;
+  priority?: Priority;
+  category?: Category;
+  sort: "createdAt" | "updatedAt" | "priority" | "title";
+  order: "asc" | "desc";
+  page: number;
+  pageSize: number;
+}
+
+export interface Page<T> {
+  data: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
 /** Outbound port: persistence. Implemented by the Prisma adapter. */
 export interface TicketRepository {
   create(data: NewTicketData): Promise<Ticket>;
+  list(query: ListQuery): Promise<Page<Ticket>>;
   findById(id: string): Promise<Ticket | null>;
   recordTransition(entry: {
     ticketId: string;

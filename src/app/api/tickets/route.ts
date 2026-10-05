@@ -1,6 +1,7 @@
 import { createTicket } from "@/server/application/createTicket";
 import { jsonResponse, toErrorResponse } from "@/server/application/http";
-import type { Ticket } from "@/server/domain/ticket";
+import { listTickets } from "@/server/application/listTickets";
+import { toTicketDto } from "@/server/application/ticketDto";
 
 // Source: https://nextjs.org/docs/app/building-your-application/routing/route-handlers
 export async function POST(request: Request): Promise<Response> {
@@ -13,17 +14,15 @@ export async function POST(request: Request): Promise<Response> {
   }
 }
 
-function toTicketDto(ticket: Ticket) {
-  return {
-    id: ticket.id,
-    title: ticket.title,
-    description: ticket.description,
-    requester: ticket.requester,
-    requesterEmail: ticket.requesterEmail,
-    category: ticket.category,
-    priority: ticket.priority,
-    status: ticket.status,
-    createdAt: ticket.createdAt.toISOString(),
-    updatedAt: ticket.updatedAt.toISOString(),
-  };
+export async function GET(request: Request): Promise<Response> {
+  try {
+    const params = Object.fromEntries(new URL(request.url).searchParams);
+    const page = await listTickets(params);
+    return jsonResponse({
+      ...page,
+      data: page.data.map(toTicketDto),
+    });
+  } catch (error) {
+    return toErrorResponse(error);
+  }
 }

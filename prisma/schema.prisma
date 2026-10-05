@@ -40,6 +40,9 @@ model Ticket {
   requesterEmail String?
   category       Category
   priority       Priority
+  // Denormalized urgency weight (Baja 0 … Crítica 3). Lets the DB sort by
+  // priority with pagination; kept in sync by the repository on write.
+  priorityWeight Int           @default(0)
   status         TicketStatus    @default(Pendiente)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt

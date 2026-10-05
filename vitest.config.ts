@@ -9,6 +9,8 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    // All API tests share one test database: never run files in parallel.
+    fileParallelism: false,
     include: ["tests/**/*.test.ts"],
     setupFiles: ["./tests/setup.ts"],
     coverage: {
