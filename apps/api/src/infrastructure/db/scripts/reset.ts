@@ -15,7 +15,9 @@
  * debe negarse a correr si NODE_ENV=production.
  */
 
+import "../../env.js";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { closePool, getPool } from "../pool.js";
 import { loadDatabaseConfig } from "../config.js";
 
@@ -65,32 +67,29 @@ async function main(): Promise<void> {
   }
   loadDatabaseConfig();
 
-  // eslint-disable-next-line no-console
   console.log("[reset] eliminando tablas y funciones...");
   await dropFunctionsAndTriggers();
   await dropTables();
 
-  // eslint-disable-next-line no-console
   console.log("[reset] ejecutando migraciones...");
   runSelfScript("migrate.ts");
 
   if (options.seed) {
-    // eslint-disable-next-line no-console
     console.log("[reset] ejecutando seed...");
     runSelfScript("seed.ts");
   } else {
-    // eslint-disable-next-line no-console
     console.log("[reset] seed omitido (--no-seed).");
   }
 }
 
 function runSelfScript(filename: string): void {
   // Reutiliza el mismo runner de tsx para garantizar mismo contexto ESM/TS.
+  // Convierte la URL a ruta de archivo: node no acepta href file:// como argv.
   const here = new URL(import.meta.url);
-  const scriptUrl = new URL(`./${filename}`, here).href;
+  const scriptPath = fileURLToPath(new URL(`./${filename}`, here));
   const result = spawnSync(
     process.execPath,
-    ["--import", "tsx", scriptUrl],
+    ["--import", "tsx", scriptPath],
     { stdio: "inherit" },
   );
   if (result.status !== 0) {
@@ -101,7 +100,6 @@ function runSelfScript(filename: string): void {
 main()
   .catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
-    // eslint-disable-next-line no-console
     console.error(`[reset] error: ${message}`);
     process.exitCode = 1;
   })

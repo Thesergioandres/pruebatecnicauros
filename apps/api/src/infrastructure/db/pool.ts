@@ -33,7 +33,6 @@ export function getPool(): DbPool {
     pool.on("error", (error: Error) => {
       // Un cliente ocioso murio; el pool lo recreara. Log a stderr para que
       // los scripts CLI lo vean sin depender del logger de la app.
-      // eslint-disable-next-line no-console
       console.error("[db] pool client error", error.message);
     });
   }

@@ -15,6 +15,7 @@
  *   DATABASE_POOL_MAX (opcional; default 10)
  */
 
+import "../../env.js";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -83,22 +84,17 @@ async function main(): Promise<void> {
   let pending = 0;
   for (const filename of files) {
     if (applied.has(filename)) {
-      // eslint-disable-next-line no-console
       console.log(`[migrate] skip   ${filename} (ya aplicada)`);
       continue;
     }
     pending += 1;
-    // eslint-disable-next-line no-console
     console.log(`[migrate] apply  ${filename}`);
     await applyMigration(filename);
-    // eslint-disable-next-line no-console
     console.log(`[migrate] ok     ${filename}`);
   }
   if (pending === 0) {
-    // eslint-disable-next-line no-console
     console.log("[migrate] nada que aplicar; esquema al dia.");
   } else {
-    // eslint-disable-next-line no-console
     console.log(`[migrate] ${pending} migracion(es) aplicada(s).`);
   }
 }
@@ -106,7 +102,6 @@ async function main(): Promise<void> {
 main()
   .catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
-    // eslint-disable-next-line no-console
     console.error(`[migrate] error: ${message}`);
     process.exitCode = 1;
   })

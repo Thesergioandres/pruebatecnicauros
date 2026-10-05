@@ -71,7 +71,7 @@ Never declare a UI change done without a browser check and a clean console.
   the whole API. Never leak stack traces or internals to clients.
 - **Validation**: at the system boundary only (route handlers, form submission, env loading,
   third-party responses). Internal code trusts its types.
-- **Comments**: explain *why*, never *what*. No commented-out code. No TODOs without an owner.
+- **Comments**: 100% en español, CERO comentarios en inglés (orden inamovible del dueño). Explain *why*, never *what*. No commented-out code. No TODOs without an owner.
 - **Logging**: no `console.log` in product code. A logger that respects levels. Never log secrets,
   tokens, or PII.
 - **No `alert()` / `confirm()` / `prompt()`** in product UI.

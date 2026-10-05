@@ -1,25 +1,24 @@
 /**
  * seed.ts
  *
- * Inserta datos minimos de desarrollo:
- *   - 2 usuarios (admin + user), contrasenas hasheadas con bcrypt.
- *   - 6 tickets variados en categoria/prioridad/estado, cada uno con al menos
- *     una entrada en ticket_history que documenta su creacion.
+ * Inserta el usuario administrador inicial, leido de las variables
+ * de entorno `SEED_ADMIN_EMAIL` y `SEED_ADMIN_PASSWORD` (con defaults
+ * solo de desarrollo). Es idempotente: usa UUIDs fijos y
+ * `ON CONFLICT (id) DO NOTHING`. Re-ejecutar el script no produce
+ * duplicados.
  *
- * Es idempotente: los IDs son deterministas (UUID fijos) y se usa
- * `ON CONFLICT (id) DO NOTHING`. Re-ejecutar el script no produce duplicados.
- *
- * Variables de entorno:
- *   SEED_ADMIN_EMAIL / SEED_USER_EMAIL  (opcional; defaults dev)
- *   SEED_ADMIN_PASSWORD / SEED_USER_PASSWORD  (obligatorio en prod)
+ * El spec exige que la creacion de usuarios sea exclusiva de `ADMIN`
+ * (ver `POST /api/admin/users`); el seed es la excepcion documentada
+ * que permite bootstrap del primer admin cuando la BD esta vacia.
  *
  * Uso:
  *   npm run db:seed --workspace @soporte/api
  */
 
+import "../../env.js";
 import bcrypt from "bcryptjs";
 
-import { closePool, getPool, withTransaction } from "../pool.js";
+import { closePool, getPool } from "../pool.js";
 import { loadDatabaseConfig } from "../config.js";
 import type {
   TicketCategoryCode,
@@ -33,12 +32,31 @@ import type {
 
 const BCRYPT_ROUNDS = 10;
 
-interface SeedUser {
-  readonly id: string;
-  readonly name: string;
-  readonly email: string;
-  readonly password: string;
-  readonly role: UserRoleCode;
+const ADMIN_ID = "00000000-0000-5000-a000-000000000001";
+
+const DEFAULT_ADMIN_EMAIL = "admin@soporte.local";
+const DEFAULT_ADMIN_PASSWORD = "admin1234";
+
+function readEnvOr(key: string, fallback: string): string {
+  const value = process.env[key];
+  if (value === undefined || value.trim() === "") return fallback;
+  return value;
+}
+
+function buildAdmin(): {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  role: UserRoleCode;
+} {
+  return {
+    id: ADMIN_ID,
+    name: "Ada Admin",
+    email: readEnvOr("SEED_ADMIN_EMAIL", DEFAULT_ADMIN_EMAIL),
+    password: readEnvOr("SEED_ADMIN_PASSWORD", DEFAULT_ADMIN_PASSWORD),
+    role: "ADMIN",
+  };
 }
 
 interface SeedHistory {
@@ -48,9 +66,9 @@ interface SeedHistory {
   readonly newStatus: TicketStatusCode;
   readonly changedById: string;
   readonly observation: string | null;
-  /** Días hacia atrás desde hoy (entero, puede ser negativo). */
+  /** Dias hacia atras desde hoy (entero, puede ser negativo). */
   readonly daysAgo: number;
-  /** Horas del día (0-23) para el timestamp exacto, determinista. */
+  /** Hora del dia (0-23) para el timestamp exacto, determinista. */
   readonly hour: number;
 }
 
@@ -62,44 +80,15 @@ interface SeedTicket {
   readonly priority: TicketPriorityCode;
   readonly priorityWeight: 0 | 1 | 2 | 3;
   readonly status: TicketStatusCode;
-  readonly requesterId: string;
   readonly assignedToId: string | null;
   readonly history: readonly SeedHistory[];
 }
 
-const ADMIN_ID = "00000000-0000-5000-a000-000000000001";
-const USER_ID = "00000000-0000-5000-a000-000000000002";
-
-const DEFAULT_ADMIN_EMAIL = "admin@soporte.local";
-const DEFAULT_USER_EMAIL = "user@soporte.local";
-const DEFAULT_ADMIN_PASSWORD = "admin1234";
-const DEFAULT_USER_PASSWORD = "user1234";
-
-function readEnvOr(key: string, fallback: string): string {
-  const value = process.env[key];
-  if (value === undefined || value.trim() === "") return fallback;
-  return value;
-}
-
-function buildUsers(): readonly SeedUser[] {
-  return [
-    {
-      id: ADMIN_ID,
-      name: "Ada Admin",
-      email: readEnvOr("SEED_ADMIN_EMAIL", DEFAULT_ADMIN_EMAIL),
-      password: readEnvOr("SEED_ADMIN_PASSWORD", DEFAULT_ADMIN_PASSWORD),
-      role: "ADMIN",
-    },
-    {
-      id: USER_ID,
-      name: "Ursula User",
-      email: readEnvOr("SEED_USER_EMAIL", DEFAULT_USER_EMAIL),
-      password: readEnvOr("SEED_USER_PASSWORD", DEFAULT_USER_PASSWORD),
-      role: "USER",
-    },
-  ];
-}
-
+/**
+ * Tickets de demo. Como el seed solo crea el admin, todos los tickets
+ * tienen al admin como solicitante. Algunos quedan asignados al
+ * propio admin y otros sin asignar, para cubrir ambos casos del UI.
+ */
 function buildTickets(): readonly SeedTicket[] {
   return [
     {
@@ -111,7 +100,6 @@ function buildTickets(): readonly SeedTicket[] {
       priority: "ALTA",
       priorityWeight: 2,
       status: "PENDIENTE",
-      requesterId: USER_ID,
       assignedToId: null,
       history: [
         {
@@ -119,7 +107,7 @@ function buildTickets(): readonly SeedTicket[] {
           ticketId: "00000000-0000-5000-b000-000000000001",
           previousStatus: null,
           newStatus: "PENDIENTE",
-          changedById: USER_ID,
+          changedById: ADMIN_ID,
           observation: "Ticket creado desde portal de soporte",
           daysAgo: 2,
           hour: 9,
@@ -135,7 +123,6 @@ function buildTickets(): readonly SeedTicket[] {
       priority: "MEDIA",
       priorityWeight: 1,
       status: "EN_PROGRESO",
-      requesterId: USER_ID,
       assignedToId: ADMIN_ID,
       history: [
         {
@@ -143,7 +130,7 @@ function buildTickets(): readonly SeedTicket[] {
           ticketId: "00000000-0000-5000-b000-000000000002",
           previousStatus: null,
           newStatus: "PENDIENTE",
-          changedById: USER_ID,
+          changedById: ADMIN_ID,
           observation: "Ticket creado desde portal de soporte",
           daysAgo: 5,
           hour: 11,
@@ -169,7 +156,6 @@ function buildTickets(): readonly SeedTicket[] {
       priority: "CRITICA",
       priorityWeight: 3,
       status: "EN_PROGRESO",
-      requesterId: USER_ID,
       assignedToId: ADMIN_ID,
       history: [
         {
@@ -177,7 +163,7 @@ function buildTickets(): readonly SeedTicket[] {
           ticketId: "00000000-0000-5000-b000-000000000003",
           previousStatus: null,
           newStatus: "PENDIENTE",
-          changedById: USER_ID,
+          changedById: ADMIN_ID,
           observation: "Reporte de incidente masivo",
           daysAgo: 1,
           hour: 8,
@@ -203,7 +189,6 @@ function buildTickets(): readonly SeedTicket[] {
       priority: "BAJA",
       priorityWeight: 0,
       status: "RESUELTA",
-      requesterId: USER_ID,
       assignedToId: ADMIN_ID,
       history: [
         {
@@ -211,7 +196,7 @@ function buildTickets(): readonly SeedTicket[] {
           ticketId: "00000000-0000-5000-b000-000000000004",
           previousStatus: null,
           newStatus: "PENDIENTE",
-          changedById: USER_ID,
+          changedById: ADMIN_ID,
           observation: "Ticket creado desde portal de soporte",
           daysAgo: 10,
           hour: 10,
@@ -247,7 +232,6 @@ function buildTickets(): readonly SeedTicket[] {
       priority: "ALTA",
       priorityWeight: 2,
       status: "PENDIENTE",
-      requesterId: USER_ID,
       assignedToId: null,
       history: [
         {
@@ -255,7 +239,7 @@ function buildTickets(): readonly SeedTicket[] {
           ticketId: "00000000-0000-5000-b000-000000000005",
           previousStatus: null,
           newStatus: "PENDIENTE",
-          changedById: USER_ID,
+          changedById: ADMIN_ID,
           observation: "Ticket creado desde portal de soporte",
           daysAgo: 0,
           hour: 8,
@@ -271,7 +255,6 @@ function buildTickets(): readonly SeedTicket[] {
       priority: "MEDIA",
       priorityWeight: 1,
       status: "CANCELADA",
-      requesterId: USER_ID,
       assignedToId: ADMIN_ID,
       history: [
         {
@@ -279,7 +262,7 @@ function buildTickets(): readonly SeedTicket[] {
           ticketId: "00000000-0000-5000-b000-000000000006",
           previousStatus: null,
           newStatus: "PENDIENTE",
-          changedById: USER_ID,
+          changedById: ADMIN_ID,
           observation: "Ticket creado desde portal de soporte",
           daysAgo: 7,
           hour: 14,
@@ -301,7 +284,6 @@ function buildTickets(): readonly SeedTicket[] {
 
 function offsetDate(daysAgo: number, hour: number): Date {
   const now = new Date();
-  // Truncar a las `hour:00:00.000Z` del dia `daysAgo` dias atras.
   const target = new Date(
     Date.UTC(
       now.getUTCFullYear(),
@@ -320,113 +302,112 @@ async function hashPassword(plain: string): Promise<string> {
   return bcrypt.hash(plain, BCRYPT_ROUNDS);
 }
 
-async function insertUsers(users: readonly SeedUser[]): Promise<number> {
-  let inserted = 0;
-  for (const user of users) {
-    const passwordHash = await hashPassword(user.password);
-    const result = await getPool().query<UserRow>(
-      `INSERT INTO users (id, name, email, password_hash, role)
-       VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (id) DO NOTHING
-       RETURNING id`,
-      [user.id, user.name, user.email, passwordHash, user.role],
-    );
-    if ((result.rowCount ?? 0) > 0) inserted += 1;
-  }
-  return inserted;
+async function insertAdmin(): Promise<number> {
+  const admin = buildAdmin();
+  const passwordHash = await hashPassword(admin.password);
+  const result = await getPool().query<UserRow>(
+    `INSERT INTO users (id, name, email, password_hash, role)
+     VALUES ($1, $2, $3, $4, $5)
+     ON CONFLICT (id) DO NOTHING
+     RETURNING id`,
+    [admin.id, admin.name, admin.email, passwordHash, admin.role],
+  );
+  return result.rowCount ?? 0;
 }
 
 async function insertTicket(ticket: SeedTicket): Promise<boolean> {
-  return withTransaction(async (client) => {
-    const createdAt = offsetDate(
-      ticket.history[0]?.daysAgo ?? 0,
-      ticket.history[0]?.hour ?? 9,
-    );
-    const updatedAt = ticket.history.at(-1) === undefined
-      ? createdAt
-      : offsetDate(
-          ticket.history.at(-1)!.daysAgo,
-          ticket.history.at(-1)!.hour,
-        );
-    const resolvedAt = ticket.status === "RESUELTA" ? updatedAt : null;
-    const ticketResult = await client.query<TicketRow>(
-      `INSERT INTO tickets (
-         id, title, description, category, priority, priority_weight,
-         status, requester_id, assigned_to_id, created_at, updated_at, resolved_at
-       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-       ON CONFLICT (id) DO NOTHING
-       RETURNING id`,
+  return new Promise((resolveFn, rejectFn) => {
+    void (async () => {
+      try {
+        const ok = await insertTicketImpl(ticket);
+        resolveFn(ok);
+      } catch (err) {
+        rejectFn(err as Error);
+      }
+    })();
+  });
+}
+
+async function insertTicketImpl(ticket: SeedTicket): Promise<boolean> {
+  const createdAt = offsetDate(
+    ticket.history[0]?.daysAgo ?? 0,
+    ticket.history[0]?.hour ?? 9,
+  );
+  const last = ticket.history.at(-1);
+  const updatedAt =
+    last === undefined ? createdAt : offsetDate(last.daysAgo, last.hour);
+  const resolvedAt = ticket.status === "RESUELTA" ? updatedAt : null;
+  const ticketResult = await getPool().query<TicketRow>(
+    `INSERT INTO tickets (
+       id, title, description, category, priority, priority_weight,
+       status, requester_id, assigned_to_id, created_at, updated_at, resolved_at
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     ON CONFLICT (id) DO NOTHING
+     RETURNING id`,
+    [
+      ticket.id,
+      ticket.title,
+      ticket.description,
+      ticket.category,
+      ticket.priority,
+      ticket.priorityWeight,
+      ticket.status,
+      ADMIN_ID,
+      ticket.assignedToId,
+      createdAt,
+      updatedAt,
+      resolvedAt,
+    ],
+  );
+  if ((ticketResult.rowCount ?? 0) === 0) {
+    // Ya existia: no reinsertamos historial (preserva eventos reales).
+    return false;
+  }
+  for (const entry of ticket.history) {
+    const ts = offsetDate(entry.daysAgo, entry.hour);
+    await getPool().query<TicketHistoryRow>(
+      `INSERT INTO ticket_history (
+         id, ticket_id, previous_status, new_status, changed_by_id, observation, created_at
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (id) DO NOTHING`,
       [
+        entry.id,
         ticket.id,
-        ticket.title,
-        ticket.description,
-        ticket.category,
-        ticket.priority,
-        ticket.priorityWeight,
-        ticket.status,
-        ticket.requesterId,
-        ticket.assignedToId,
-        createdAt,
-        updatedAt,
-        resolvedAt,
+        entry.previousStatus,
+        entry.newStatus,
+        entry.changedById,
+        entry.observation,
+        ts,
       ],
     );
-    if ((ticketResult.rowCount ?? 0) === 0) {
-      // Ya existia: no reinsertamos historial (preserva eventos reales).
-      return false;
-    }
-    for (const entry of ticket.history) {
-      const ts = offsetDate(entry.daysAgo, entry.hour);
-      await client.query<TicketHistoryRow>(
-        `INSERT INTO ticket_history (
-           id, ticket_id, previous_status, new_status, changed_by_id, observation, created_at
-         ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-         ON CONFLICT (id) DO NOTHING`,
-        [
-          entry.id,
-          ticket.id,
-          entry.previousStatus,
-          entry.newStatus,
-          entry.changedById,
-          entry.observation,
-          ts,
-        ],
-      );
-    }
-    return true;
-  });
+  }
+  return true;
 }
 
 async function main(): Promise<void> {
   loadDatabaseConfig();
-  const users = buildUsers();
+  const admin = buildAdmin();
+  const adminInserted = await insertAdmin();
+  console.log(
+    `[seed] admin: ${adminInserted} nuevo(s), ${adminInserted === 0 ? 1 : 0} ya existente(s)`,
+  );
+
   const tickets = buildTickets();
-
-  const usersInserted = await insertUsers(users);
-  // eslint-disable-next-line no-console
-  console.log(`[seed] users: ${usersInserted} nuevo(s), ${users.length - usersInserted} ya existente(s)`);
-
   let ticketsInserted = 0;
   for (const ticket of tickets) {
     const inserted = await insertTicket(ticket);
     if (inserted) ticketsInserted += 1;
   }
-  // eslint-disable-next-line no-console
   console.log(
     `[seed] tickets: ${ticketsInserted} nuevo(s), ${tickets.length - ticketsInserted} ya existente(s)`,
   );
-  // eslint-disable-next-line no-console
-  console.log("[seed] credenciales dev:");
-  // eslint-disable-next-line no-console
-  console.log(`  admin -> ${users[0]!.email} / ${readEnvOr("SEED_ADMIN_PASSWORD", DEFAULT_ADMIN_PASSWORD)}`);
-  // eslint-disable-next-line no-console
-  console.log(`  user  -> ${users[1]!.email} / ${readEnvOr("SEED_USER_PASSWORD", DEFAULT_USER_PASSWORD)}`);
+  console.log("[seed] credenciales dev del admin:");
+  console.log(`  ${admin.email} / ${admin.password}`);
 }
 
 main()
   .catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
-    // eslint-disable-next-line no-console
     console.error(`[seed] error: ${message}`);
     process.exitCode = 1;
   })

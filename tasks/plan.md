@@ -11,9 +11,9 @@ Trazabilidad requisito → código → test: `tasks/todo.md`.
 | Backend | Express 5 + TypeScript, arquitectura hexagonal |
 | Layout | npm workspaces (`apps/api`, `apps/web`, `packages/shared`) |
 | Base de datos | PostgreSQL 16 en Docker Compose |
-| Identidad | Login completo (registro + login + sesión) para que el historial tenga "usuario responsable" real |
+| Identidad | Solo login público. Sin registro público. Seed admin (`SEED_ADMIN_EMAIL/PASSWORD`). Solo `ADMIN` crea usuarios (`POST /api/admin/users`, rol `ADMIN` o `USER`/cliente). El historial toma el autor de la sesión |
 | Eliminar | Cancelar (transición de estado, auditada) + soft delete exclusivo de admin |
-| Opcionales | Swagger/OpenAPI + Docker + tests automatizados. Notificaciones: fuera |
+| Notificaciones | Email con Resend (`RESEND_API_KEY` solo en `.env`, nunca en git). Eventos: ticket creado, cambio de estado, resuelta/cancelada. Envío no bloqueante: fallo de email nunca rompe la operación, queda en log |
 | Git | Ramas `main` + `develop`, ≥5 commits, ≥1 merge `develop → main` |
 
 ## Estructura
@@ -77,11 +77,11 @@ Todos los endpoints de lectura/escritura exigen sesión válida.
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/api/auth/register` | Alta de usuario |
+| POST | `/api/auth/register` | Alta de usuario, solo `ADMIN` (sin registro público; el login es la única pantalla pública) |
 | POST | `/api/auth/login` | Login, emite cookie de sesión `httpOnly` |
 | POST | `/api/auth/logout` | Cierra sesión |
 | GET | `/api/auth/me` | Usuario de la sesión |
-| GET | `/api/users` | Listado de usuarios (para selector de solicitante/responsable) |
+| GET | `/api/admin/users` | Listado y gestión de usuarios, solo `ADMIN` (crear admin/cliente, panel admin) |
 | GET | `/api/tickets` | Lista con `search`, `status`, `priority`, `category`, `sort`, `order`, `page`, `pageSize`, `includeDeleted` |
 | POST | `/api/tickets` | Crear |
 | GET | `/api/tickets/:id` | Detalle |
