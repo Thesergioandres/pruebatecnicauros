@@ -27,10 +27,10 @@ export function TicketTable({ tickets }: TicketTableProps) {
     );
   }
   return (
-    <div className="overflow-x-auto rounded-lg border border-[--color-border] bg-[--color-surface]">
+    <div className="overflow-x-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
       <table className="w-full text-left text-sm">
         <caption className="sr-only">Listado de solicitudes de soporte</caption>
-        <thead className="bg-[--color-surface-muted] text-xs uppercase tracking-wide text-[--color-text-muted]">
+        <thead className="bg-[var(--color-surface-muted)] text-xs uppercase tracking-wide text-[var(--color-text-muted)]">
           <tr>
             <th scope="col" className="px-4 py-3 font-semibold">Título</th>
             <th scope="col" className="px-4 py-3 font-semibold">Estado</th>
@@ -43,17 +43,17 @@ export function TicketTable({ tickets }: TicketTableProps) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[--color-border]">
+        <tbody className="divide-y divide-[var(--color-border)]">
           {tickets.map((ticket) => (
-            <tr key={ticket.id} className="hover:bg-[--color-surface-muted]/60">
+            <tr key={ticket.id} className="hover:bg-[var(--color-surface-muted)]/60">
               <td className="max-w-xs px-4 py-3 align-top">
                 <Link
                   href={`/tickets/${ticket.id}`}
-                  className="font-semibold text-[--color-text] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-500]"
+                  className="font-semibold text-[var(--color-text)] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-500)]"
                 >
                   {ticket.title}
                 </Link>
-                <p className="mt-0.5 line-clamp-2 text-xs text-[--color-text-muted]">{ticket.description}</p>
+                <p className="mt-0.5 line-clamp-2 text-xs text-[var(--color-text-muted)]">{ticket.description}</p>
               </td>
               <td className="px-4 py-3 align-top">
                 <StatusBadge status={ticket.status} />
@@ -61,17 +61,17 @@ export function TicketTable({ tickets }: TicketTableProps) {
               <td className="px-4 py-3 align-top">
                 <PriorityBadge priority={ticket.priority} />
               </td>
-              <td className="px-4 py-3 align-top text-[--color-text-muted]">
+              <td className="px-4 py-3 align-top text-[var(--color-text-muted)]">
                 {TICKET_CATEGORY_LABELS[ticket.category]}
               </td>
-              <td className="px-4 py-3 align-top text-[--color-text]">{ticket.requester.name}</td>
-              <td className="px-4 py-3 align-top text-xs text-[--color-text-muted]">
+              <td className="px-4 py-3 align-top text-[var(--color-text)]">{ticket.requester.name}</td>
+              <td className="px-4 py-3 align-top text-xs text-[var(--color-text-muted)]">
                 {formatDate(ticket.updatedAt)}
               </td>
               <td className="px-4 py-3 align-top text-right">
                 <Link
                   href={`/tickets/${ticket.id}`}
-                  className="text-xs font-semibold text-[--color-brand-700] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-500]"
+                  className="text-xs font-semibold text-[var(--color-brand-700)] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-500)]"
                 >
                   Ver detalle
                 </Link>

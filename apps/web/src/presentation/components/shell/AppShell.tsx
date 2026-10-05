@@ -18,7 +18,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
-    <div className="min-h-dvh bg-[--color-canvas] text-[--color-on-surface]">
+    <div className="min-h-dvh bg-[var(--color-canvas)] text-[var(--color-on-surface)]">
       {/* Sidebar fijo solo en desktop */}
       <div className="hidden lg:block fixed inset-y-0 left-0 w-64 z-40">
         <Sidebar />

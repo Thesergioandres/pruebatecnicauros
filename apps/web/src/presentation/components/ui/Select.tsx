@@ -23,12 +23,12 @@ export interface SelectProps {
 }
 
 const FIELD_BASE =
-  "block w-full rounded-md border bg-white px-3 py-2 text-sm text-[--color-text] shadow-sm transition-colors " +
-  "focus:outline-none focus:ring-2 focus:ring-[--color-brand-500]/30 focus:border-[--color-brand-500] " +
-  "disabled:cursor-not-allowed disabled:bg-[--color-surface-muted] disabled:opacity-70";
+  "block w-full rounded-md border bg-white px-3 py-2 text-sm text-[var(--color-text)] shadow-sm transition-colors " +
+  "focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/30 focus:border-[var(--color-brand-500)] " +
+  "disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-70";
 
-const FIELD_BORDER = "border-[--color-border]";
-const FIELD_INVALID = "border-[--color-danger-700] focus:border-[--color-danger-700] focus:ring-[--color-danger-700]/30";
+const FIELD_BORDER = "border-[var(--color-border)]";
+const FIELD_INVALID = "border-[var(--color-danger-700)] focus:border-[var(--color-danger-700)] focus:ring-[var(--color-danger-700)]/30";
 
 export function Select({
   label,
@@ -53,10 +53,10 @@ export function Select({
 
   return (
     <div className="space-y-1.5">
-      <label htmlFor={selectId} className="block text-sm font-medium text-[--color-text]">
+      <label htmlFor={selectId} className="block text-sm font-medium text-[var(--color-text)]">
         {label}
         {required ? (
-          <span aria-hidden="true" className="ml-0.5 text-[--color-danger-700]">
+          <span aria-hidden="true" className="ml-0.5 text-[var(--color-danger-700)]">
             *
           </span>
         ) : null}
@@ -85,12 +85,12 @@ export function Select({
         ))}
       </select>
       {hint ? (
-        <p id={hintId} className="text-xs text-[--color-text-muted]">
+        <p id={hintId} className="text-xs text-[var(--color-text-muted)]">
           {hint}
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} role="alert" className="text-xs font-medium text-[--color-danger-700]">
+        <p id={errorId} role="alert" className="text-xs font-medium text-[var(--color-danger-700)]">
           {error}
         </p>
       ) : null}

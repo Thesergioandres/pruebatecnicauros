@@ -32,7 +32,7 @@ export function DeleteTicketForm({ ticket }: DeleteTicketFormProps) {
 
   if (ticket.deletedAt) {
     return (
-      <p className="rounded-md border border-[--color-border] bg-[--color-surface-muted] px-3 py-2 text-sm text-[--color-text-muted]">
+      <p className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-muted)] px-3 py-2 text-sm text-[var(--color-text-muted)]">
         Esta solicitud fue eliminada el {new Date(ticket.deletedAt).toLocaleString("es-CO")}.
       </p>
     );
@@ -64,13 +64,13 @@ export function DeleteTicketForm({ ticket }: DeleteTicketFormProps) {
 
   return (
     <div
-      className="space-y-3 rounded-lg border border-[--color-border] bg-[--color-surface] p-4"
+      className="space-y-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
       role="region"
       aria-label="Eliminar solicitud"
     >
       <header>
-        <h3 className="text-sm font-semibold text-[--color-text]">Eliminar solicitud</h3>
-        <p className="text-xs text-[--color-text-muted]">
+        <h3 className="text-sm font-semibold text-[var(--color-text)]">Eliminar solicitud</h3>
+        <p className="text-xs text-[var(--color-text-muted)]">
           {isTerminalStatus(ticket.status)
             ? "La solicitud esta en estado terminal; se eliminara de forma definitiva (soft delete)."
             : "La solicitud pasara a estar eliminada y dejara de aparecer en el listado."}

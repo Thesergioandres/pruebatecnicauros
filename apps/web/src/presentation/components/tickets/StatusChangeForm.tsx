@@ -40,7 +40,7 @@ export function StatusChangeForm({ ticket }: StatusChangeFormProps) {
 
   if (isTerminalStatus(ticket.status)) {
     return (
-      <p className="rounded-md border border-[--color-border] bg-[--color-surface-muted] px-3 py-2 text-sm text-[--color-text-muted]">
+      <p className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-muted)] px-3 py-2 text-sm text-[var(--color-text-muted)]">
         Esta solicitud está en estado terminal ({TICKET_STATUS_LABELS[ticket.status]}) y no admite más cambios.
       </p>
     );
@@ -96,7 +96,7 @@ export function StatusChangeForm({ ticket }: StatusChangeFormProps) {
   return (
     <form
       onSubmit={(event) => void handleSubmit(event)}
-      className="space-y-3 rounded-lg border border-[--color-border] bg-[--color-surface] p-4"
+      className="space-y-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
       aria-label="Cambiar estado de la solicitud"
     >
       <Select

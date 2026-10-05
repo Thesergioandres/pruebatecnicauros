@@ -15,16 +15,16 @@ export function EmptyState({ title, description, action, icon }: EmptyStateProps
   return (
     <div
       role="status"
-      className="rounded-lg border border-dashed border-[--color-border] bg-[--color-surface] px-6 py-12 text-center"
+      className="rounded-lg border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-12 text-center"
     >
       {icon ? (
-        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[--color-surface-muted] text-[--color-on-surface-faint]">
+        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-surface-muted)] text-[var(--color-on-surface-faint)]">
           {icon}
         </div>
       ) : null}
-      <p className="text-sm font-semibold text-[--color-on-surface]">{title}</p>
+      <p className="text-sm font-semibold text-[var(--color-on-surface)]">{title}</p>
       {description ? (
-        <p className="mx-auto mt-1 max-w-sm text-sm text-[--color-on-surface-muted]">
+        <p className="mx-auto mt-1 max-w-sm text-sm text-[var(--color-on-surface-muted)]">
           {description}
         </p>
       ) : null}

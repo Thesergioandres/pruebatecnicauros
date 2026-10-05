@@ -11,15 +11,19 @@ import { BrandMark } from "../Brand.js";
 
 /**
  * Sidebar de navegacion principal. Se renderiza dentro de AppShell y se
- * duplica en MobileSidebar (drawer). Las definiciones de items viven en
- * `SIDEBAR_SECTIONS` para que ambas vistas compartan el mismo mapa.
+ * duplica en MobileSidebar (drawer). Las definiciones de items viven
+ * en `ADMIN_SECTIONS` y `USER_SECTIONS` para que ambas vistas compartan
+ * el mismo mapa.
  *
  * Visibilidad por rol:
- *  - ADMIN: ve "Principal" (Dashboard, Tickets, Usuarios) y "Sistema".
- *  - USER: ve "Portal Cliente" (Mis Solicitudes, Nueva Solicitud).
+ *  - ADMIN: ve "Principal" (Dashboard, Todos los tickets, Usuarios),
+ *    "Portal Cliente" (Mis solicitudes, Nueva solicitud).
+ *  - USER: ve solo "Portal Cliente" (Mis solicitudes, Nueva solicitud).
  *
- * El item activo se determina por prefijo de pathname para que las
- * sub-rutas (detalle, edicion) sigan marcando la seccion padre.
+ * El item activo se determina por prefijo de pathname. Cuando dos items
+ * apuntan a la misma ruta (p. ej. "Todos los tickets" y "Mis solicitudes"
+ * del admin, ambos van a /tickets), gana el que aparece primero en
+ * orden de seccion, para no duplicar el estado activo.
  */
 
 interface NavItem {
@@ -35,6 +39,9 @@ interface NavSection {
 }
 
 function Icon({ name }: { name: NavIconName }) {
+  // Cuadrado 20x20, stroke 1.75, linecap round. Mismo tamano en todos
+  // los items para que la columna de iconos quede alineada a lo largo
+  // del sidebar (sin saltos de baseline por glyphs de ancho variable).
   const props = {
     width: 20,
     height: 20,
@@ -50,9 +57,10 @@ function Icon({ name }: { name: NavIconName }) {
     case "dashboard":
       return (
         <svg {...props}>
-          <path d="M3 13a9 9 0 1 1 18 0" />
-          <path d="M12 13l4-4" />
-          <circle cx="12" cy="13" r="1" />
+          <rect x="3" y="3" width="7" height="9" rx="1" />
+          <rect x="14" y="3" width="7" height="5" rx="1" />
+          <rect x="14" y="12" width="7" height="9" rx="1" />
+          <rect x="3" y="16" width="7" height="5" rx="1" />
         </svg>
       );
     case "tickets":
@@ -85,13 +93,6 @@ function Icon({ name }: { name: NavIconName }) {
           <path d="M12 8v8M8 12h8" />
         </svg>
       );
-    case "settings":
-      return (
-        <svg {...props}>
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-        </svg>
-      );
     case "logout":
       return (
         <svg {...props}>
@@ -108,7 +109,6 @@ type NavIconName =
   | "users"
   | "my-tickets"
   | "new-ticket"
-  | "settings"
   | "logout";
 
 const ADMIN_SECTIONS: NavSection[] = [
@@ -146,16 +146,6 @@ const ADMIN_SECTIONS: NavSection[] = [
       },
     ],
   },
-  {
-    title: "Sistema",
-    items: [
-      {
-        label: "Configuracion SLA",
-        href: "/admin",
-        icon: <Icon name="settings" />,
-      },
-    ],
-  },
 ];
 
 const USER_SECTIONS: NavSection[] = [
@@ -177,14 +167,44 @@ const USER_SECTIONS: NavSection[] = [
   },
 ];
 
-function isActive(pathname: string, item: NavItem): boolean {
+function itemMatches(pathname: string, item: NavItem): boolean {
   const target = item.matchPrefix ?? item.href;
   if (target === "/tickets") {
-    // Para "tickets" no queremos marcar el item si estamos en /tickets/new
-    // con la intencion de crear (ese item se maneja aparte).
+    // Coincide con /tickets exacto y con sub-rutas (/tickets/[id], /tickets/[id]/edit).
+    // Se excluye /tickets/new para que "Nueva solicitud" pueda marcarse activo
+    // en su propia pagina sin que tambien lo haga "Todos los tickets".
+    if (pathname === "/tickets/new") return false;
     return pathname === "/tickets" || pathname.startsWith("/tickets/");
   }
   return pathname === target || pathname.startsWith(`${target}/`);
+}
+
+function buildActiveMap(
+  pathname: string,
+  sections: NavSection[],
+): Map<string, boolean> {
+  // Recorre secciones e items en orden. Solo el PRIMER item que matchea
+  // una ruta queda activo, asi evitamos doble marcado cuando dos items
+  // apuntan al mismo destino (p. ej. "Todos los tickets" y
+  // "Mis solicitudes" ambos van a /tickets).
+  const active = new Map<string, boolean>();
+  const claimed = new Set<string>();
+  for (const section of sections) {
+    for (const item of section.items) {
+      const key = item.matchPrefix ?? item.href;
+      if (claimed.has(key)) {
+        active.set(item.label, false);
+        continue;
+      }
+      if (itemMatches(pathname, item)) {
+        active.set(item.label, true);
+        claimed.add(key);
+      } else {
+        active.set(item.label, false);
+      }
+    }
+  }
+  return active;
 }
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
@@ -193,8 +213,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const router = useRouter();
   const isAdmin = session?.user.role === "ADMIN";
   const sections = isAdmin ? ADMIN_SECTIONS : USER_SECTIONS;
+  const activeMap = buildActiveMap(pathname, sections);
 
-  // Cierra la sesion y vuelve al login. Visible siempre al pie del sidebar.
   async function handleLogout() {
     await authContainer.logout();
     setSession(null);
@@ -205,20 +225,20 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <nav
       aria-label="Navegacion principal"
-      className="flex h-full w-64 flex-col bg-[--color-sidebar-bg] text-[--color-sidebar-text]"
+      className="flex h-full w-64 flex-col bg-[var(--color-sidebar-bg)] text-[var(--color-sidebar-text)]"
     >
       {/* Brand */}
-      <div className="flex h-16 items-center justify-between px-5 border-b border-[--color-sidebar-divider]">
+      <div className="flex h-16 shrink-0 items-center justify-between gap-2 px-5 border-b border-[var(--color-sidebar-divider)]">
         <Link
           href="/"
-          className="flex items-center gap-2.5 text-sm font-semibold text-[--color-sidebar-text] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-400] rounded"
+          className="flex items-center gap-2.5 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-400)]"
         >
           <BrandMark size={28} />
           <div className="flex flex-col leading-tight">
-            <span className="font-semibold tracking-tight text-[--color-sidebar-text]">
+            <span className="text-sm font-semibold tracking-tight text-[var(--color-sidebar-text)]">
               IT MANAGEMENT
             </span>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-[--color-sidebar-text-muted]">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-sidebar-text-muted)]">
               Soporte interno
             </span>
           </div>
@@ -228,13 +248,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       {/* Sections */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         {sections.map((section) => (
-          <div key={section.title} className="space-y-1">
-            <h3 className="px-2 mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[--color-sidebar-section]">
+          <div key={section.title}>
+            <h3 className="px-2 mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-sidebar-section)]">
               {section.title}
             </h3>
             <ul className="space-y-0.5">
               {section.items.map((item) => {
-                const active = isActive(pathname, item);
+                const active = activeMap.get(item.label) === true;
                 return (
                   <li key={item.label}>
                     <Link
@@ -243,15 +263,14 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                       aria-current={active ? "page" : undefined}
                       className={
                         active
-                          ? "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-semibold bg-[--color-brand-500] text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-300]"
-                          : "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-[--color-sidebar-text] hover:bg-[--color-sidebar-bg-hover] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-400] transition-colors"
+                          ? "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-semibold bg-[var(--color-brand-500)] text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-300)]"
+                          : "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-[var(--color-sidebar-text)] hover:bg-[var(--color-sidebar-bg-hover)] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-400)] transition-colors"
                       }
                     >
                       <span
                         className={
-                          active
-                            ? "text-white"
-                            : "text-[--color-sidebar-text-muted]"
+                          "flex h-5 w-5 shrink-0 items-center justify-center " +
+                          (active ? "text-white" : "text-[var(--color-sidebar-text-muted)]")
                         }
                         aria-hidden
                       >
@@ -267,20 +286,22 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </div>
 
-      {/* Cierre de sesion siempre visible */}
-      <div className="px-3 pb-2">
+      {/* Cierre de sesion */}
+      <div className="shrink-0 px-3 pb-3 pt-2 border-t border-[var(--color-sidebar-divider)]">
         <button
           type="button"
           onClick={() => void handleLogout()}
-          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-semibold text-[--color-sidebar-text] hover:bg-[--color-sidebar-bg-hover] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-400] transition-colors"
+          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-semibold text-[var(--color-sidebar-text)] hover:bg-[var(--color-sidebar-bg-hover)] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-400)] transition-colors"
         >
-          <span className="text-[--color-sidebar-text-muted]" aria-hidden>
+          <span
+            className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--color-sidebar-text-muted)]"
+            aria-hidden
+          >
             <Icon name="logout" />
           </span>
           <span className="truncate">Cerrar sesion</span>
         </button>
       </div>
-
     </nav>
   );
 }

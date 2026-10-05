@@ -53,7 +53,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
       <div
         role="status"
         aria-live="polite"
-        className="rounded-md border border-[--color-border] bg-[--color-surface] p-6 text-sm text-[--color-text-muted]"
+        className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-sm text-[var(--color-text-muted)]"
       >
         Cargando sesion…
       </div>
@@ -65,7 +65,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
       <div
         role="status"
         aria-live="polite"
-        className="rounded-md border border-[--color-border] bg-[--color-surface] p-6 text-sm text-[--color-text-muted]"
+        className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-sm text-[var(--color-text-muted)]"
       >
         Redirigiendo a inicio de sesion…
       </div>
@@ -76,7 +76,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
     return (
       <div
         role="alert"
-        className="rounded-md border border-[--color-danger-200] bg-[--color-danger-50] p-4 text-sm text-[--color-danger-700]"
+        className="rounded-md border border-[var(--color-danger-200)] bg-[var(--color-danger-50)] p-4 text-sm text-[var(--color-danger-700)]"
       >
         No tienes permisos para acceder a esta seccion.
       </div>

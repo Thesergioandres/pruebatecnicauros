@@ -89,20 +89,20 @@ export function DashboardClient() {
     <div className="space-y-6">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[--color-brand-600]">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--color-brand-600)]">
             OPS-CENTER // TI-GLOBAL
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight text-[--color-on-surface]">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-on-surface)]">
             Centro de Control Global
           </h1>
-          <p className="text-sm text-[--color-on-surface-muted]">
+          <p className="text-sm text-[var(--color-on-surface-muted)]">
             Supervision en tiempo real, asignacion operativa y cumplimiento de SLAs.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/tickets/new"
-            className="inline-flex items-center gap-1.5 rounded-md bg-[--color-brand-500] px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[--color-brand-600] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-500] transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-brand-500)] px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[var(--color-brand-600)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-500)] transition-colors"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
               <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
@@ -111,7 +111,7 @@ export function DashboardClient() {
           </Link>
           <Link
             href="/admin/users"
-            className="inline-flex items-center gap-1.5 rounded-md bg-[--color-surface] border border-[--color-border] px-3.5 py-2 text-sm font-semibold text-[--color-on-surface] hover:bg-[--color-surface-muted] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-500] transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] px-3.5 py-2 text-sm font-semibold text-[var(--color-on-surface)] hover:bg-[var(--color-surface-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-500)] transition-colors"
           >
             Gestionar usuarios
           </Link>
@@ -159,7 +159,7 @@ export function DashboardClient() {
 
       <section aria-label="Tickets recientes" className="space-y-3">
         <Card className="p-0 overflow-hidden">
-          <header className="flex items-center justify-between px-5 py-4 border-b border-[--color-border-faint]">
+          <header className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border-faint)]">
             <CardHeader
               as="h2"
               title="Tickets recientes"
@@ -167,33 +167,33 @@ export function DashboardClient() {
             />
             <Link
               href="/tickets"
-              className="text-xs font-semibold text-[--color-brand-700] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[--color-brand-500] rounded"
+              className="text-xs font-semibold text-[var(--color-brand-700)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-500)] rounded"
             >
               Ver todos →
             </Link>
           </header>
 
           {tickets === null && !error ? (
-            <div className="px-5 py-10 text-center text-sm text-[--color-on-surface-muted]">
+            <div className="px-5 py-10 text-center text-sm text-[var(--color-on-surface-muted)]">
               Cargando tickets...
             </div>
           ) : recientes.length === 0 ? (
-            <div className="px-5 py-10 text-center text-sm text-[--color-on-surface-muted]">
+            <div className="px-5 py-10 text-center text-sm text-[var(--color-on-surface-muted)]">
               Sin tickets registrados.
             </div>
           ) : (
-            <ul className="divide-y divide-[--color-border-faint]">
+            <ul className="divide-y divide-[var(--color-border-faint)]">
               {recientes.map((t) => (
-                <li key={t.id} className="px-5 py-3 hover:bg-[--color-surface-muted] transition-colors">
+                <li key={t.id} className="px-5 py-3 hover:bg-[var(--color-surface-muted)] transition-colors">
                   <Link
                     href={`/tickets/${t.id}`}
-                    className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[--color-brand-500] rounded"
+                    className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-brand-500)] rounded"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-[--color-on-surface] truncate">
+                      <p className="text-sm font-semibold text-[var(--color-on-surface)] truncate">
                         {t.title}
                       </p>
-                      <p className="mt-0.5 flex items-center gap-2 text-xs text-[--color-on-surface-muted]">
+                      <p className="mt-0.5 flex items-center gap-2 text-xs text-[var(--color-on-surface-muted)]">
                         <span className="font-mono">{t.id.slice(0, 8)}</span>
                         <span aria-hidden>·</span>
                         <span className="truncate">{t.requester.name}</span>
@@ -202,7 +202,7 @@ export function DashboardClient() {
                     <div className="flex items-center gap-2 shrink-0">
                       <PriorityBadge priority={t.priority} />
                       <StatusBadge status={t.status} />
-                      <span className="hidden md:inline font-mono text-[11px] text-[--color-on-surface-muted] tabular-nums whitespace-nowrap">
+                      <span className="hidden md:inline font-mono text-[11px] text-[var(--color-on-surface-muted)] tabular-nums whitespace-nowrap">
                         {formatDateTime(t.updatedAt)}
                       </span>
                     </div>
@@ -227,30 +227,30 @@ interface MetricCardProps {
 
 function MetricCard({ label, value, tone, sublabel, trend }: MetricCardProps) {
   return (
-    <div className="rounded-lg border border-[--color-border] bg-[--color-surface] p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+    <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-[--color-on-surface-muted]">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-on-surface-muted)]">
           {label}
         </span>
         {tone === "critical" && value && value > 0 ? (
           <span className="relative flex h-2 w-2" aria-hidden>
-            <span className="absolute inline-flex h-full w-full rounded-full bg-[--color-critical] opacity-75 animate-ping" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[--color-critical]" />
+            <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--color-critical)] opacity-75 animate-ping" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-critical)]" />
           </span>
         ) : null}
       </div>
-      <p className="mt-2 font-display text-2xl font-semibold tabular-nums text-[--color-on-surface]">
+      <p className="mt-2 font-display text-2xl font-semibold tabular-nums text-[var(--color-on-surface)]">
         {value === undefined ? (
-          <span className="inline-block h-7 w-12 rounded bg-[--color-surface-muted] animate-pulse" />
+          <span className="inline-block h-7 w-12 rounded bg-[var(--color-surface-muted)] animate-pulse" />
         ) : (
           value.toLocaleString("es-CO")
         )}
       </p>
-      <p className="mt-1 text-[11px] font-medium text-[--color-on-surface-muted]">
+      <p className="mt-1 text-[11px] font-medium text-[var(--color-on-surface-muted)]">
         {sublabel}
       </p>
       {trend ? (
-        <p className="mt-1 text-[11px] text-[--color-on-surface-faint]">{trend}</p>
+        <p className="mt-1 text-[11px] text-[var(--color-on-surface-faint)]">{trend}</p>
       ) : null}
     </div>
   );

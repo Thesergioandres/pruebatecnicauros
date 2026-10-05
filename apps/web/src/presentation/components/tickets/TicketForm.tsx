@@ -133,12 +133,18 @@ export function TicketForm({ mode, ticketId, initialValues, submitLabel }: Ticke
     event.preventDefault();
     setFormError(null);
 
+    // En creacion el responsable es siempre la cuenta en sesion, sin selector.
     const basePayload = {
       title,
       description,
       category,
       priority,
-      assignedToId: assignedToId === "" ? null : assignedToId,
+      assignedToId:
+        mode === "create"
+          ? (session?.user.id ?? null)
+          : assignedToId === ""
+            ? null
+            : assignedToId,
     };
 
     const schema = mode === "create" ? createTicketSchema : updateTicketSchema;
@@ -281,6 +287,11 @@ export function TicketForm({ mode, ticketId, initialValues, submitLabel }: Ticke
           />
         </div>
 
+        {mode === "create" ? (
+          <p className="text-sm text-[var(--color-on-surface-muted)]">
+            Responsable: <strong>{session?.user.name ?? "Tu cuenta"}</strong> (se asigna automaticamente)
+          </p>
+        ) : (
         <Select
           label="Responsable"
           name="assignedToId"
@@ -297,6 +308,7 @@ export function TicketForm({ mode, ticketId, initialValues, submitLabel }: Ticke
           error={fieldErrors.assignedToId}
           disabled={isSubmitting}
         />
+        )}
 
         <div className="flex flex-wrap items-center justify-end gap-2">
           <Button

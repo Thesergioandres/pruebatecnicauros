@@ -12,7 +12,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 
 export function Card({ children, className, padded = true, ...rest }: CardProps) {
   const computed = [
-    "rounded-lg border border-[--color-border] bg-[--color-surface] shadow-[0_1px_2px_rgba(15,23,42,0.04)]",
+    "rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_1px_2px_rgba(15,23,42,0.04)]",
     padded ? "p-5" : "",
     className,
   ]
@@ -41,11 +41,11 @@ export function CardHeader({
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0 space-y-0.5">
-        <Heading className="text-base font-semibold tracking-tight text-[--color-on-surface]">
+        <Heading className="text-base font-semibold tracking-tight text-[var(--color-on-surface)]">
           {title}
         </Heading>
         {description ? (
-          <p className="text-sm text-[--color-on-surface-muted]">{description}</p>
+          <p className="text-sm text-[var(--color-on-surface-muted)]">{description}</p>
         ) : null}
       </div>
       {trailing ? <div className="shrink-0">{trailing}</div> : null}
