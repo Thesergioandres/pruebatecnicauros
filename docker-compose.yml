@@ -1,0 +1,124 @@
+# ============================================================================
+# docker-compose.yml
+#
+# Pila de desarrollo / demo del sistema de soporte tecnico.
+#
+# Servicios:
+#   - db        : PostgreSQL 16 alpine, puerto del anfitrion 5433 -> 5432
+#                  dentro del contenedor
+#   - migrate   : de un solo arranque que corre `db:migrate` cuando inicia
+#                  (es idempotente)
+#   - api       : API REST Express 5 (Node 20) en puerto 4000
+#   - web       : Frontend Next.js 15 en puerto 3000
+#
+# Convenciones:
+#   - Las credenciales y secretos se inyectan por `environment`. Nada de
+#     secretos fijos en el codigo fuera de los valores predeterminados de
+#     dev claramente marcados.
+#   - El servicio `migrate` reusa la imagen del api y sobreescribe el comando
+#     con el script compilado. Asi evitamos mantener un Dockerfile aparte.
+#   - El frontend se comunica con el api por nombre de servicio (`api:4000`),
+#     no por localhost; el navegador solo ve la api a traves del proxy de
+#     mismo origen que define next.config.ts.
+#
+# Verificacion inicial del repositorio:
+#   docker compose up -d db
+#   npm run db:migrate --workspace @soporte/api
+#   npm run db:seed    --workspace @soporte/api
+#   npm run typecheck  --workspace @soporte/api
+#
+# Pila completa:
+#   docker compose up --build
+# ============================================================================
+
+name: soporte
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: soporte-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tickets
+      POSTGRES_PASSWORD: tickets_dev
+      POSTGRES_DB: tickets
+    ports:
+      - "5433:5432"
+    volumes:
+      - soporte-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tickets -d tickets"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  migrate:
+    # Servicio efimero: aplica migraciones y termina. Su exito es la
+    # condicion que `api` espera antes de arrancar. Como es idempotente,
+    # un reinicio no rompe nada.
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: soporte-api:dev
+    container_name: soporte-migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://tickets:tickets_dev@db:5432/tickets
+      DATABASE_POOL_MAX: "10"
+      LOG_LEVEL: info
+    command: ["node", "apps/api/dist/infrastructure/db/scripts/migrate.js"]
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: soporte-api:dev
+    container_name: soporte-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV: production
+      API_PORT: "4000"
+      DATABASE_URL: postgresql://tickets:tickets_dev@db:5432/tickets
+      DATABASE_POOL_MAX: "10"
+      LOG_LEVEL: info
+      # Sobreescribir en shell o .env para produccion. Valor predeterminado
+      # solo para desarrollo local.
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-32-chars-min-aaaaa}
+      SESSION_COOKIE_NAME: soporte_session
+      SESSION_TTL_HOURS: "8"
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "4000:4000"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    image: soporte-web:dev
+    container_name: soporte-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      NODE_ENV: production
+      # El navegador nunca ve esta URL: el proxy de mismo origen de next
+      # (`/api -> API_INTERNAL_URL`) reescribe las llamadas del cliente.
+      API_INTERNAL_URL: http://api:4000
+      PORT: "3000"
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      - "3000:3000"
+
+volumes:
+  soporte-pgdata:
+    name: soporte-pgdata
